@@ -1,10 +1,25 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+<div class="main">
+  <div class="header">
+    <app-header />
   </div>
-  <router-view/>
+  <div class="content">
+    <router-view />
+  </div>
+</div>
 </template>
+
+<script lang="ts">
+import { defineComponent } from 'vue'
+import  AppHeader from './components/AppHeader.vue'
+export default defineComponent({
+  name: 'app',
+  components: {
+    AppHeader
+  },
+})
+</script>
+
 
 <style lang="scss">
 #app {
@@ -26,5 +41,11 @@
       color: #42b983;
     }
   }
+}
+</style>
+
+<style>
+:root {
+  --el-color-success: #42b883;
 }
 </style>
