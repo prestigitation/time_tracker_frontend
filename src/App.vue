@@ -10,6 +10,9 @@
 </template>
 
 <script lang="ts">
+//TODO: i18n хотя бы 2 языка
+//TODO: запись видео (опционально аудио)
+import './assets/index.scss'
 import { defineComponent } from 'vue'
 import  AppHeader from './components/AppHeader.vue'
 export default defineComponent({
@@ -42,10 +45,8 @@ export default defineComponent({
     }
   }
 }
-</style>
 
-<style>
 :root {
-  --el-color-success: #42b883;
+  --el-color-success: #42b883 !important;
 }
 </style>

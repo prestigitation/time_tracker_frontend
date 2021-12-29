@@ -1,3 +1,35 @@
-:root {
-    --el-color-success: #42b883 !important;
+.user_form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    & .el-form-item {
+        margin-bottom: 5px !important;
+    }
+}
+
+.error {
+    &_message {
+        &_small {
+            color: rgb(228, 79, 79);
+            margin-top: 5px;
+        }
+    }
+}
+
+.auth_page {
+    @media screen and (min-width: 768px) {
+        .el-form {
+            margin-top: 75px;
+        }
+    }
+    @media screen and (max-width: 768px) {
+        .el-form {
+            margin-top: 25px;
+            padding: 5px;
+        }
+    }
+    &_button {
+        margin-top: 20px !important;
+        max-width: 100px !important;
+    }
 }

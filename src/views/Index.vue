@@ -1,6 +1,6 @@
 <template>
 <div>
-    <el-button type="success">Success</el-button>
+    indx
 </div>
 </template>
 
