@@ -7,5 +7,9 @@
     },
     "header": {
         "index": "Index"
+    },
+    "label": {
+        "en": "English",
+        "ru": "Russian"
     }
 }

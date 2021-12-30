@@ -27,7 +27,7 @@ export default defineComponent({
         const router = useRouter()
 
         onBeforeMount(() => {
-            if(store.getters.get_user) {
+            if(store.getters.get_user.login && store.getters.get_user.login) {
                 router.push('/')
             }
         })

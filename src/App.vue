@@ -10,12 +10,13 @@
 </template>
 
 <script lang="ts">
-//TODO: i18n хотя бы 2 языка
 //TODO: запись видео (опционально аудио)
 import './assets/index.scss'
-import { defineComponent, ref } from 'vue'
+import { defineComponent, computed } from 'vue'
 import  AppHeader from './components/AppHeader.vue'
 import { useStore } from 'vuex'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 export default defineComponent({
   name: 'app',
   components: {
@@ -23,9 +24,20 @@ export default defineComponent({
   },
   setup() {
     const store = useStore()
-    const locale = ref('')
+    const i18n = useI18n()
+    const router = useRouter()
+    console.log(i18n)
+
+    router.beforeEach((to, from, next) => {
+      let locale = computed(() => store.getters.get_locale)
+      if(locale.value && locale.value !== i18n.locale.value) {
+        setLocale(locale.value)
+      }
+      return next()
+    })
+    
     const setLocale = (newLocale: string) => {
-      locale.value = newLocale
+      i18n.locale.value = newLocale
     }
     const changeLocale = (locale: string) => {
       store.dispatch('change_locale', locale)
