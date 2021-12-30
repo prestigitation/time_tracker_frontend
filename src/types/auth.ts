@@ -6,4 +6,8 @@ interface ILogin extends IAuth {}
 interface IRegister extends IAuth {
     login: string
 }
-export { ILogin, IRegister }
+declare interface IUserData {
+    login: string | undefined,
+    id: number | undefined
+}
+export { ILogin, IRegister, IUserData }

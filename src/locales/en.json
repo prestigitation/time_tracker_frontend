@@ -1,0 +1,11 @@
+{
+    "auth": {
+        "login": "Sign In",
+        "register": "Register",
+        "logout": "Log Out",
+        "welcome": "Welcome"
+    },
+    "header": {
+        "index": "Index"
+    }
+}

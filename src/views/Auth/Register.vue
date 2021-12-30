@@ -15,7 +15,7 @@
 </el-row>
 </template>
 <script lang="ts">
-import { defineComponent, inject, reactive, ref } from 'vue'
+import { defineComponent, inject, ref, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { AxiosError, AxiosResponse } from 'axios'
@@ -25,6 +25,12 @@ export default defineComponent({
         const axios: any = inject('axios')
         const store = useStore()
         const router = useRouter()
+
+        onBeforeMount(() => {
+            if(store.getters.get_user) {
+                router.push('/')
+            }
+        })
         
         let email = ref('')
         let password = ref('')

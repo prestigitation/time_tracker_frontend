@@ -1,7 +1,7 @@
 <template>
 <div class="main">
   <div class="header">
-    <app-header />
+    <app-header @changeLocale="changeLocale" />
   </div>
   <div class="content">
     <router-view />
@@ -13,13 +13,28 @@
 //TODO: i18n хотя бы 2 языка
 //TODO: запись видео (опционально аудио)
 import './assets/index.scss'
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import  AppHeader from './components/AppHeader.vue'
+import { useStore } from 'vuex'
 export default defineComponent({
   name: 'app',
   components: {
     AppHeader
   },
+  setup() {
+    const store = useStore()
+    const locale = ref('')
+    const setLocale = (newLocale: string) => {
+      locale.value = newLocale
+    }
+    const changeLocale = (locale: string) => {
+      store.dispatch('change_locale', locale)
+      setLocale(locale)
+    }
+    return {
+      changeLocale
+    }
+  }
 })
 </script>
 
