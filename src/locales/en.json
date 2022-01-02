@@ -6,10 +6,29 @@
         "welcome": "Welcome"
     },
     "header": {
-        "index": "Index"
+        "index": "My tasks"
     },
     "label": {
         "en": "English",
         "ru": "Russian"
+    },
+    "tasks": {
+        "your_tasks": "Your tasks",
+        "create": "New Task",
+        "title": "Task title",
+        "priority": "Task priority",
+        "description": "Give more information about the task",
+        "due_date": "Due date",
+        "files": "You can attach some files to this task",
+        "picker": {
+            "today": "Today",
+            "tomorrow": "Tomorrow",
+            "3days": "3 days",
+            "week": "A Week"
+        },
+        "subtasks": {
+            "header": "Subtasks",
+            "create": "Add subtask"
+        }
     }
 }

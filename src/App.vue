@@ -50,6 +50,11 @@ export default defineComponent({
 })
 </script>
 
+<style lang="scss" scoped> 
+.content {
+  padding: 0 25px 0 25px;
+}
+</style>
 
 <style lang="scss">
 #app {

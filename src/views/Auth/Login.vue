@@ -1,6 +1,6 @@
 <template>
 <el-row justify="center" class="auth_page">
-    <el-col :span="8" :xs="12">
+    <el-col :span="8" :xs="16">
         <el-form class="user_form">
             <el-form-item label="Введите ваш E-Mail" /> 
             <el-input v-model="email" />

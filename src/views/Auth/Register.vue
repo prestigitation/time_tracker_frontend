@@ -1,6 +1,6 @@
 <template>
 <el-row justify="center" class="auth_page">
-    <el-col :span="8" :xs="12">
+    <el-col :span="8" :xs="16">
         <el-form class="user_form">
             <el-form-item label="Придумайте ник" /> 
             <el-input v-model="login" />
@@ -8,7 +8,7 @@
             <el-input v-model="email" />
             <el-form-item label="Введите пароль" /> 
             <el-input v-model="password" />
-            <small class="error_message_small" v-if="error_message">Ошибка: {{error_message}}</small>
+            <small class="error_message_small" v-if="error_message">Ошибка: {{ error_message }}</small>
             <el-button type="success" class="auth_page_button" @click.prevent="register">Войти</el-button>
         </el-form>
     </el-col>

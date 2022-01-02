@@ -2,7 +2,7 @@
 <div class="header_wrapper">
     <el-row>
         <el-col class="main_links" :span="16" :xs="6">
-            <el-link class="grid-content" type="primary" href="/">
+            <el-link class="grid-content" type="success" href="/">
                 {{ $t('header.index') }}
             </el-link>
         </el-col>
@@ -15,7 +15,6 @@
             </el-link>
         </el-col>
         <el-col class="user_links" v-if="user && user.login && user.id" :span="8" :xs="18">
-            <!--<span @click.prevent="$emit('changeLocale', 'en'); $i18n.locale = 'en'"> {{ $i18n.locale }}</span> -->
             <el-select v-model="locale" class="select_container">
                 <el-option v-for="locale in avaliable_locales" 
                 :key="locale" 
@@ -26,7 +25,8 @@
                 </el-option>
             </el-select>
             <el-link class="grid-content" type="primary" :href="`/users/${user.id}`">
-                {{$t('auth.welcome')}}, {{ user.login }}
+                <span class="welcome">{{$t('auth.welcome')}},</span> 
+                <span>{{ user.login }}</span>
             </el-link>
             <el-link class="grid-content" type="warning" @click.prevent="logout">
                 {{$t('auth.logout')}}
@@ -57,8 +57,8 @@ export default defineComponent({
 
         watch(
         () => { return locale.value}, 
-        (current, previous) => {
-            emit('changeLocale', current)
+        (currentLocale, previousLocalee) => {
+            emit('changeLocale', currentLocale)
         })
         
         const logout = () => {
@@ -71,28 +71,38 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .select_container {
-    width: 20%;
+    width: 35%;
 }
-.main_links {
+
+%links {
     display: flex;
-    justify-content: flex-start !important;
-    &>a {
-        margin-left: 10px !important;
-        margin-right: 10px !important;
-    }
-}
-.user_links {
-    display: flex;
-    justify-content: flex-end;
     align-items: center;
     &>a {
         margin-left: 10px !important;
         margin-right: 10px !important;
     }
 }
+
+.main_links,
+.user_links {
+    @extend %links;
+}
+
+.main_links {
+    justify-content: flex-start !important;
+}
+.user_links {
+    justify-content: flex-end !important;
+}
+
 .header_wrapper {
     padding: 5px;
     margin-top: 5px;
     margin-bottom: 10px;
+}
+.welcome {
+    @media (max-width: 768px) {
+        display: none !important;
+    }
 }
 </style>
