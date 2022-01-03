@@ -13,11 +13,12 @@
         "ru": "Russian"
     },
     "tasks": {
+        "name": "Task",
         "your_tasks": "Your tasks",
         "create": "New Task",
-        "title": "Task title",
-        "priority": "Task priority",
-        "description": "Give more information about the task",
+        "title": "{type} title",
+        "priority": "{type} priority",
+        "description": "Give more information about the {type}",
         "due_date": "Due date",
         "files": "You can attach some files to this task",
         "picker": {
@@ -27,6 +28,7 @@
             "week": "A Week"
         },
         "subtasks": {
+            "name": "Subtask",
             "header": "Subtasks",
             "create": "Add subtask"
         }

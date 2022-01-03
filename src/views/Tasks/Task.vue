@@ -1,14 +1,14 @@
 <template>
     <el-row justify="center" class="task_create_page">
     <el-col :span="8" :xs="20">
-        <span class="task_create_header">{{ $t('tasks.create')}}</span>
+        <span class="task_create_header">{{ subtask ? $t('tasks.subtasks.create') : $t('tasks.create')}}</span>
         <el-form class="task_form" enctype="multipart/form-data" method="post">
-            <el-form-item  :label="$t('tasks.title')" /> 
+            <el-form-item  :label="$t('tasks.title', {type: subtask ? $t('tasks.subtasks.name') : $t('tasks.name')})" /> 
             <el-input :title="title" />
-            <el-form-item  :label="$t('tasks.priority')" /> 
+            <el-form-item  :label="$t('tasks.priority', {type: subtask ? $t('tasks.subtasks.name') : $t('tasks.name')})" /> 
             <el-input :priority="priority" />
-            <el-form-item  :label="$t('tasks.description')" /> 
-            <el-input type="textarea" :description="description" />
+            <el-form-item  :label="$t('tasks.description', {type: subtask ? $t('tasks.subtasks.name') : $t('tasks.name')})" /> 
+            <el-input type="textarea" v-model="description" @input="changeDescription" />
             <el-form-item :label="$t('tasks.due_date')" /> 
             <div class="date_picker">
                 <el-date-picker
@@ -20,9 +20,8 @@
             </div>
             <el-form-item  :label="$t('tasks.files') + ':'" /> 
             <input class="files" type="file" ref="files" multiple>
-            <el-form-item :label="$t('tasks.subtasks.header')" /> 
             
-            <subtask />
+            <subtask @openNewSubtask="openNewSubtask" v-if="!subtask" :subtasks="subtasks" />
         </el-form>
     </el-col>
 </el-row>
@@ -33,7 +32,23 @@ import { defineComponent, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 export default defineComponent({
     name: 'task',
-    setup() {
+    emits: [ 
+        'update:description' ,
+        'update:subtask_description',
+
+        'openNewSubtask'
+    ],
+    props: {
+        subtask: {
+            type: Boolean,
+            deefault: false
+        },
+        subtasks: {
+            type: Array,
+            default: []
+        }
+    },
+    setup(props, {emit}) {
         const {t} = useI18n()
         const title = ref('')
         const priority = ref('')
@@ -43,6 +58,23 @@ export default defineComponent({
         //const tags = ref('')
         const files = ref<any>(null)
         const addTask = () => {}
+        const getUpdateEmit = (updatingModel: string) : any => {
+            //Распределяем модели на 2 поведения: Поведение, когда задача является задачей, и когда - подзадачей
+            if(props.subtask) {
+                return `update:subtask_${updatingModel}` 
+                // формируем эмит для подзадачи или для задачи соответственно
+            } else return `update:${updatingModel}`
+        }
+        const changeDescription = (value: string) => {
+                // Если задача является подзадачей, отправляем ее для установления нужного индекса 
+                // в компонент subtask
+                // и последующего изменения в родительском компоненте
+                // Если мы работаем с обычной формой, отправляем это напрямую родителю (createTask.vue)
+                emit(getUpdateEmit('description'), value)
+        }
+        const openNewSubtask = () => {
+            emit('openNewSubtask')
+        }
         const shortcuts = ref([
         {
             text: t('tasks.picker.today'),
@@ -73,8 +105,6 @@ export default defineComponent({
             },
         },
         ])
-
-
         return {
             title,
             priority,
@@ -84,7 +114,10 @@ export default defineComponent({
             files,
             //tags,
             shortcuts,
-            addTask
+            addTask,
+            changeDescription,
+            getUpdateEmit,
+            openNewSubtask
         }
     },
 })

@@ -1,17 +1,31 @@
 <template>
 <div>
-    <task></task>
+    <task 
+        @update:description="changeDescription" 
+        :subtasks="subtasks"
+        @openNewSubtask="openSubtask"
+    />
     <small class="error_message_small" v-if="error_message">Ошибка: {{ error_message }}</small>
     <el-button class="task_create_page_button" type="success" @click.prevent="addTask">Добавить задачу</el-button>
 </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, reactive } from "vue";
+import { ISubtask } from '../../types/subtask'
 export default defineComponent({
     name: 'create-task',
     setup() {
         const error_message = ref('')
+        const subtasks = reactive<ISubtask[]>([])
+        const openSubtask = () => {
+            console.log('sree')
+            subtasks.push({
+                title: "",
+                description: ""
+            });
+            console.log(subtasks)
+        }
         const addTask = () => {
             /*let formData = new FormData()
             formData.append('title', title.value)
@@ -29,9 +43,15 @@ export default defineComponent({
                 error_message.value = error.message
             })*/
         }
+        const changeDescription = (event) => {
+            console.log(event);
+        }
         return {
             error_message,
-            addTask
+            addTask,
+            subtasks,
+            openSubtask,
+            changeDescription
         }
     }
 })

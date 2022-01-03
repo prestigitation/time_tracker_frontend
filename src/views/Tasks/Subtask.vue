@@ -1,4 +1,5 @@
 <template>
+<el-form-item :label="$t('tasks.subtasks.header')" /> 
 <div class="subtask__wrapper">
 <div class="subtask__closed">
     <div class="subtask__button">
@@ -8,29 +9,43 @@
     </div>
 </div>
 <div class="subtask__list">
-    <task v-for="(subtask, index) in subtasks" :key="index" />
-        <!--<Task></Task> -->
-
+    <!-- Главное отличие подзадачи от обычной заключается в том, что это рекурсивный компонент, 
+    который может содержать множество подзадач. 
+    Задачей этого компонента является отрисовка и обработка списка подзадач, а также маппинг индексов 
+    подзадач для использования в родительском компоненте  -->
+    <task v-for="(sub, index) in subtasks" :key="index" 
+        class="subtask__element"
+        :subtask="true"
+        @update:subtask_description="changeSubtaskDescription(index, $event)"
+    />
 </div>
 </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from "vue";
-import { ISubtask } from '../../types/subtask'
+import { defineComponent, reactive } from "vue";
 export default defineComponent({
     name: "subtask",
-    setup() {
-        const subtasks = reactive<ISubtask[]>([]);
+    emits: [
+        'openNewSubtask'
+    ],
+    props: {
+        subtasks: {
+            type: Array,
+            default: []
+        }
+    },
+    setup(props, {emit}) {
+        const changeSubtaskDescription = (index: number, value: string) => {
+            console.log('subtask')
+            console.log(value)
+        }
         const openNewSubtask = () => {
-            subtasks.push({
-                title: "",
-                description: ""
-            });
+            emit('openNewSubtask')
         };
         return {
-            subtasks,
-            openNewSubtask
+            openNewSubtask,
+            changeSubtaskDescription
         };
     },
 })
@@ -43,7 +58,7 @@ export default defineComponent({
         border: 1px solid black;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: inherit;
     }
     &__button {
         background: #293942;
@@ -56,6 +71,11 @@ export default defineComponent({
         &_text {
             color: white;
         }
+    }
+    &__element {
+        border-bottom: 5px dashed #41B883;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
     }
 }
 </style>
