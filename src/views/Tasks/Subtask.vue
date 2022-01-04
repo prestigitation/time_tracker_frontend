@@ -1,33 +1,49 @@
 <template>
-<el-form-item :label="$t('tasks.subtasks.header')" /> 
-<div class="subtask__wrapper">
-<div class="subtask__closed">
-    <div class="subtask__button">
-        <span class="subtask__button_text" @click.prevent="openNewSubtask">
-            + {{ $t('tasks.subtasks.create') }}
-        </span>
+<div>
+    <el-form-item :label="$t('tasks.subtasks.header')" /> 
+    <div class="subtask__wrapper">
+        <div class="subtask__list">
+            <!-- Главное отличие подзадачи от обычной заключается в том, что это рекурсивный компонент, 
+            который может содержать множество подзадач. 
+            Задачей этого компонента является отрисовка и обработка списка подзадач, а также маппинг индексов 
+            подзадач для использования в родительском компоненте  -->
+          <!-- <task v-for="(sub, index) in subtasks" :key="index" 
+                class="subtask__element"
+                :subtask="true"
+                @update:subtask_description="changeSubtaskDescription({
+                    index,
+                    value: $event
+                })"
+                v-bind="$attrs"
+            /> -->
+            <task v-for="(sub, index) in subtasks" :key="index" 
+                class="subtask__element"
+                :subtask="true"
+                @update:subtask_description="changeSubtaskValue('description', {
+                    value: $event,
+                    index
+                })"
+            />
+        </div>
+        <div class="subtask__closed">
+            <div class="subtask__button">
+                <span class="subtask__button_text" @click.prevent="openNewSubtask">
+                    + {{ $t('tasks.subtasks.create') }}
+                </span>
+            </div>
+        </div>
     </div>
-</div>
-<div class="subtask__list">
-    <!-- Главное отличие подзадачи от обычной заключается в том, что это рекурсивный компонент, 
-    который может содержать множество подзадач. 
-    Задачей этого компонента является отрисовка и обработка списка подзадач, а также маппинг индексов 
-    подзадач для использования в родительском компоненте  -->
-    <task v-for="(sub, index) in subtasks" :key="index" 
-        class="subtask__element"
-        :subtask="true"
-        @update:subtask_description="changeSubtaskDescription(index, $event)"
-    />
-</div>
 </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive } from "vue";
+import { ISubtaskEmit } from '../../types/subtask'
 export default defineComponent({
     name: "subtask",
     emits: [
-        'openNewSubtask'
+        'openNewSubtask',
+        'update:subtask_description'
     ],
     props: {
         subtasks: {
@@ -36,16 +52,21 @@ export default defineComponent({
         }
     },
     setup(props, {emit}) {
-        const changeSubtaskDescription = (index: number, value: string) => {
-            console.log('subtask')
-            console.log(value)
+        const changeSubtaskValue = (property: string, descriptionInfo: ISubtaskEmit) => {
+            let result = {
+                index: descriptionInfo.index,
+                value: descriptionInfo.value
+            }
+            let subEmit: any = `update:subtask_${property}`
+            emit(subEmit, result)
         }
         const openNewSubtask = () => {
             emit('openNewSubtask')
         };
+
         return {
             openNewSubtask,
-            changeSubtaskDescription
+            changeSubtaskValue
         };
     },
 })

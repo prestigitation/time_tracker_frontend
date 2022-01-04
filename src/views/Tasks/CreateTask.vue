@@ -1,7 +1,13 @@
 <template>
 <div>
-    <task 
-        @update:description="changeDescription" 
+    <task
+        @update:description="changeTaskDescription" 
+        @update:title="changeTitle"
+        @update:ended_at="changeDueDate"
+        @update:files="changeFiles"
+        
+        @update:subtask_description="changeSubtaskDescription"
+        
         :subtasks="subtasks"
         @openNewSubtask="openSubtask"
     />
@@ -12,19 +18,25 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive } from "vue";
-import { ISubtask } from '../../types/subtask'
+import { ISubtask, ISubtaskEmit, ITask } from '../../types/subtask'
 export default defineComponent({
     name: 'create-task',
     setup() {
-        const error_message = ref('')
+        const error_message = ref<string>('')
+        
         const subtasks = reactive<ISubtask[]>([])
+        const task = reactive<ITask>({
+            title: '',
+            description: '',
+            ended_at: ''
+        })
+        
         const openSubtask = () => {
-            console.log('sree')
-            subtasks.push({
-                title: "",
-                description: ""
+            subtasks.push(<ITask>{
+                title: '',
+                description: '',
+                ended_at: ''
             });
-            console.log(subtasks)
         }
         const addTask = () => {
             /*let formData = new FormData()
@@ -43,15 +55,42 @@ export default defineComponent({
                 error_message.value = error.message
             })*/
         }
-        const changeDescription = (event) => {
-            console.log(event);
+        const changeFiles = (files: FileList) => {
+            console.log('recieved files')
+            console.log(files);
+            
+        }
+        const changeDueDate = (date: string) => {
+            console.log(date, typeof date)
+            task.ended_at = date
+        }
+        const changeTitle = (title:string) => {
+            task.title = title
+        }
+        const changeTaskDescription = (description: string) => {
+            task.description = description
+        }
+        const changeSubtaskDescription = (subtaskInfo: any) => {
+            console.log('change subtask description')
+            console.log(subtaskInfo)
         }
         return {
             error_message,
+            
             addTask,
-            subtasks,
             openSubtask,
-            changeDescription
+            
+            
+            task,
+            subtasks,
+            
+            
+            changeTaskDescription,
+            changeTitle,
+            changeDueDate,
+            changeFiles,
+
+            changeSubtaskDescription,
         }
     }
 })
