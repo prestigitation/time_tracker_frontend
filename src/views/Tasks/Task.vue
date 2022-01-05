@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { ISubtaskEmit } from '@/types/subtask';
+import { ISubtaskEmit } from '@/types/task';
 import { defineComponent, ref } from 'vue'
 import useShortcuts  from '../../hooks/useShortcuts'
 export default defineComponent({

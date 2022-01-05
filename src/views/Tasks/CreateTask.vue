@@ -1,12 +1,15 @@
 <template>
 <div>
     <task
-        @update:description="changeTaskDescription" 
-        @update:title="changeTitle"
-        @update:ended_at="changeDueDate"
-        @update:files="changeFiles"
+        @update:description="changeTaskValue($event,'description')" 
+        @update:title="changeTaskValue($event,'title')"
+        @update:ended_at="changeTaskValue($event,'ended_at')"
+        @update:files="changeTaskValue($event,'files')"
         
-        @update:subtask_description="changeSubtaskDescription"
+        @update:subtask_description="changeSubtaskValue"
+        @update:subtask_title="changeSubtaskValue"
+        @update:subtask_ended_at="changeSubtaskValue"
+        @update:subtask_files="changeSubtaskValue"
         
         :subtasks="subtasks"
         @openNewSubtask="openSubtask"
@@ -18,7 +21,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive } from "vue";
-import { ISubtask, ISubtaskEmit, ITask } from '../../types/subtask'
+import { ISubtask, ITask, ISubtaskStructure, ITaskValue } from '../../types/task'
 export default defineComponent({
     name: 'create-task',
     setup() {
@@ -28,17 +31,20 @@ export default defineComponent({
         const task = reactive<ITask>({
             title: '',
             description: '',
-            ended_at: ''
+            ended_at: '',
+            files: []
         })
         
         const openSubtask = () => {
             subtasks.push(<ITask>{
                 title: '',
                 description: '',
-                ended_at: ''
+                ended_at: '',
+                files: []
             });
         }
         const addTask = () => {
+            console.log(subtasks);
             /*let formData = new FormData()
             formData.append('title', title.value)
             formData.append('priority', title.value)
@@ -55,24 +61,11 @@ export default defineComponent({
                 error_message.value = error.message
             })*/
         }
-        const changeFiles = (files: FileList) => {
-            console.log('recieved files')
-            console.log(files);
-            
+        const changeTaskValue = (taskInfo: ITaskValue, updatingField: string) => {
+            task[updatingField] = taskInfo
         }
-        const changeDueDate = (date: string) => {
-            console.log(date, typeof date)
-            task.ended_at = date
-        }
-        const changeTitle = (title:string) => {
-            task.title = title
-        }
-        const changeTaskDescription = (description: string) => {
-            task.description = description
-        }
-        const changeSubtaskDescription = (subtaskInfo: any) => {
-            console.log('change subtask description')
-            console.log(subtaskInfo)
+        const changeSubtaskValue = (subtaskInfo: ISubtaskStructure) => {
+            subtasks[subtaskInfo.index][subtaskInfo.updatingField] = subtaskInfo.value
         }
         return {
             error_message,
@@ -84,13 +77,10 @@ export default defineComponent({
             task,
             subtasks,
             
-            
-            changeTaskDescription,
-            changeTitle,
-            changeDueDate,
-            changeFiles,
 
-            changeSubtaskDescription,
+
+            changeTaskValue,
+            changeSubtaskValue,
         }
     }
 })

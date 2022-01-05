@@ -38,7 +38,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive } from "vue";
-import { ISubtaskEmit } from '../../types/subtask'
+import { ISubtaskEmit } from '../../types/task'
 export default defineComponent({
     name: "subtask",
     emits: [
