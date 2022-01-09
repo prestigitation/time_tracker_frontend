@@ -9,7 +9,7 @@
         @update:subtask_description="changeSubtaskValue"
         @update:subtask_title="changeSubtaskValue"
         @update:subtask_ended_at="changeSubtaskValue"
-        @update:subtask_files="changeSubtaskValue"
+        @update:subtask_files="setSubtaskFiles"
         
         :subtasks="subtasks"
         @openNewSubtask="openSubtask"
@@ -20,11 +20,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from "vue";
+import { defineComponent, ref, reactive, inject } from "vue";
 import { ISubtask, ITask, ISubtaskStructure, ITaskValue } from '../../types/task'
+import { AxiosError } from "axios";
 export default defineComponent({
     name: 'create-task',
     setup() {
+        const axios: any = inject('axios')
         const error_message = ref<string>('')
         
         const subtasks = reactive<ISubtask[]>([])
@@ -43,23 +45,32 @@ export default defineComponent({
                 files: []
             });
         }
+        const setSubtaskFiles = (e: any) => {
+            console.log(e);
+            console.log('set task');
+            
+            
+        }
         const addTask = () => {
-            console.log(subtasks);
-            /*let formData = new FormData()
-            formData.append('title', title.value)
-            formData.append('priority', title.value)
-            formData.append('description', description.value)
-            formData.append('ended_at', ended_at.value)
-            if(files) {
-                for(let i = 0; i < files.value.files.length; i++) {
-                    formData.append('file' + i, files.value.files[i])
+            console.log(subtasks[0].files);
+            
+            let formData = new FormData()
+            formData.append('task', JSON.stringify(task))
+            formData.append('subtasks', JSON.stringify(subtasks))
+            for(let i = 0; i < task.files.length; i++) {
+                formData.append(`task_file[${i}]`, task.files[i])
+            }
+            for(let t = 0; t < subtasks.length; t++) {
+                for(let j = 0; j < subtasks[t].files.length; j++) {
+                    formData.append(`subtask_file[${t+j}]`, subtasks[t].files[j])
                 }
             }
+            
             axios.post('/task', formData).then(() => { 
                 //router.push('/') 
             }).catch((error: AxiosError) => {
                 error_message.value = error.message
-            })*/
+            })
         }
         const changeTaskValue = (taskInfo: ITaskValue, updatingField: string) => {
             task[updatingField] = taskInfo
@@ -78,7 +89,7 @@ export default defineComponent({
             subtasks,
             
 
-
+            setSubtaskFiles,
             changeTaskValue,
             changeSubtaskValue,
         }

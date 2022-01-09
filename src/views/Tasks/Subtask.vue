@@ -23,6 +23,10 @@
                     value: $event,
                     index
                 })"
+                @update:subtask_files="changeSubtaskFiles('files', {
+                    value: $event,
+                    index
+                })"
             />
         </div>
         <div class="subtask__closed">
@@ -43,7 +47,9 @@ export default defineComponent({
     name: "subtask",
     emits: [
         'openNewSubtask',
-        'update:subtask_description'
+        'update:subtask_description',
+        'update:files',
+        'update:subtask_files',
     ],
     props: {
         subtasks: {
@@ -63,10 +69,15 @@ export default defineComponent({
         const openNewSubtask = () => {
             emit('openNewSubtask')
         };
+        const changeSubtaskFiles = (e: any, b: any) => {
+            
+            
+        }
 
         return {
             openNewSubtask,
-            changeSubtaskValue
+            changeSubtaskValue,
+            changeSubtaskFiles
         };
     },
 })

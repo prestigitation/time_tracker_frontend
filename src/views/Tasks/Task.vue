@@ -18,8 +18,10 @@
                     :shortcuts="shortcuts"
                 />
             </div>
-            <el-form-item  :label="$t('tasks.files') + ':'" /> 
-            <input class="files" type="file" ref="files" multiple @change="setFiles($event)">
+            <div v-if="!$props.subtask">
+                <el-form-item  :label="$t('tasks.files') + ':'" /> 
+                <input class="files" type="file" ref="files" multiple @change="setFiles($event)">
+            </div>
             
             <subtask 
                 @openNewSubtask="openNewSubtask" 
@@ -45,6 +47,8 @@ export default defineComponent({
         'update:subtask_title',
         'update:ended_at',
         'update:subtask_ended_at',
+        'update:files',
+        'update:subtask_files',
 
         'openNewSubtask'
     ],
@@ -67,7 +71,7 @@ export default defineComponent({
         const files = ref<File[]>([])
         const addTask = () => {}
         const setFiles = (event: any) => {
-            changeField('files', event.target.files)
+            emit('update:files', event.target.files)
         }
         const matchData = (property: string, event: any) => {
             if(props.subtask) {
@@ -111,7 +115,8 @@ export default defineComponent({
             changeSubtaskField,
             openNewSubtask,
             setFiles,
-            matchData
+            matchData,
+
         }
     },
 })
