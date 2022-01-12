@@ -3,19 +3,6 @@
     <el-form-item :label="$t('tasks.subtasks.header')" /> 
     <div class="subtask__wrapper">
         <div class="subtask__list">
-            <!-- Главное отличие подзадачи от обычной заключается в том, что это рекурсивный компонент, 
-            который может содержать множество подзадач. 
-            Задачей этого компонента является отрисовка и обработка списка подзадач, а также маппинг индексов 
-            подзадач для использования в родительском компоненте  -->
-          <!-- <task v-for="(sub, index) in subtasks" :key="index" 
-                class="subtask__element"
-                :subtask="true"
-                @update:subtask_description="changeSubtaskDescription({
-                    index,
-                    value: $event
-                })"
-                v-bind="$attrs"
-            /> -->
             <task v-for="(sub, index) in subtasks" :key="index" 
                 class="subtask__element"
                 :subtask="true"
@@ -23,7 +10,11 @@
                     value: $event,
                     index
                 })"
-                @update:subtask_files="changeSubtaskFiles('files', {
+                @update:subtask_title="changeSubtaskValue('title', {
+                    value: $event,
+                    index
+                })"
+                @update:subtask_ended_at="changeSubtaskValue('ended_at', {
                     value: $event,
                     index
                 })"
@@ -48,13 +39,19 @@ export default defineComponent({
     emits: [
         'openNewSubtask',
         'update:subtask_description',
-        'update:files',
-        'update:subtask_files',
+        'update:title',
+        'update:subtask_title',
+        'update:ended_at',
+        'update:subtask_ended_at'
     ],
     props: {
         subtasks: {
             type: Array,
             default: []
+        },
+        loading: {
+            type: Boolean,
+            default: false
         }
     },
     setup(props, {emit}) {

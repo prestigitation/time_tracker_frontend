@@ -12,7 +12,7 @@ import Task from './views/Tasks/Task.vue'
 import Subtask from './views/Tasks/Subtask.vue'
 //import 'element-theme-dark';
 
-axios.defaults.baseURL = 'http://127.0.0.1:8000/'
+axios.defaults.baseURL = 'http://127.0.0.1:8000/api/'
 
 let app = createApp(App)
 .use(i18n)

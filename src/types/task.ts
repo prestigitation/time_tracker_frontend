@@ -9,7 +9,7 @@ interface ITask {
 interface ISubtask extends ITask {}
 
 interface ITaskValue {
-    value: string | File | FileList
+    value: string | File | FileList | Date
 }
 
 interface ISubtaskEmit extends ITaskValue {

@@ -15,6 +15,7 @@
     "tasks": {
         "name": "Task",
         "your_tasks": "Your tasks",
+        "add": "Add task",
         "create": "New Task",
         "title": "{type} title",
         "priority": "{type} priority",
@@ -30,7 +31,16 @@
         "subtasks": {
             "name": "Subtask",
             "header": "Subtasks",
-            "create": "Add subtask"
+            "create": "Add subtask",
+            "date_error": "Due date of {index} subtask can`t be more than due date of the task"
+        },
+        "created": {
+            "title": "Task create",
+            "message": "The task was successfully created!"
+        },
+        "failed": {
+            "title": "Task create",
+            "message": "The task wasn`t created. Check your input fields for correct values"
         }
     }
 }

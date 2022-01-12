@@ -2,7 +2,7 @@
     <el-row justify="center" class="task_create_page">
     <el-col :span="8" :xs="20">
         <span class="task_create_header">{{ subtask ? $t('tasks.subtasks.create') : $t('tasks.create')}}</span>
-        <el-form class="task_form" enctype="multipart/form-data" method="post">
+        <el-form v-loading="loading"  class="task_form" enctype="multipart/form-data" method="post">
             <el-form-item  :label="$t('tasks.title', {type: subtask ? $t('tasks.subtasks.name') : $t('tasks.name')})" /> 
             <el-input v-model="title" @input="matchData('title', $event)" />
             <el-form-item  :label="$t('tasks.priority', {type: subtask ? $t('tasks.subtasks.name') : $t('tasks.name')})" /> 
@@ -20,14 +20,16 @@
             </div>
             <div v-if="!$props.subtask">
                 <el-form-item  :label="$t('tasks.files') + ':'" /> 
-                <input class="files" type="file" ref="files" multiple @change="setFiles($event)">
+                <input class="files" type="file" name="files[]" ref="files" multiple @change="setFiles($event)">
             </div>
             
             <subtask 
                 @openNewSubtask="openNewSubtask" 
                 v-if="!subtask" 
                 :subtasks="subtasks"
-                @update:subtask_description="changeSubtaskField('description', $event)" 
+                @update:subtask_description="changeSubtaskField('description', $event)"
+                @update:subtask_title="changeSubtaskField('title', $event)"
+                @update:subtask_ended_at="changeSubtaskField('ended_at', $event)"  
             />
         </el-form>
     </el-col>
@@ -36,7 +38,7 @@
 
 <script lang="ts">
 import { ISubtaskEmit } from '@/types/task';
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import useShortcuts  from '../../hooks/useShortcuts'
 export default defineComponent({
     name: 'task',
@@ -60,6 +62,10 @@ export default defineComponent({
         subtasks: {
             type: Array,
             default: []
+        },
+        loading: {
+            type: Boolean,
+            default: false
         }
     },
     setup(props, {emit}) {
@@ -102,6 +108,9 @@ export default defineComponent({
         const openNewSubtask = () => {
             emit('openNewSubtask')
         }
+        watch(() => props.loading, (previous, current) => {
+            console.log(`previoust ${previous} current: ${current}`)
+        })
         const { shortcuts } = useShortcuts()
         return {
             title,
