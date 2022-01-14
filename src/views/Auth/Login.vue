@@ -38,15 +38,17 @@ export default defineComponent({
             let formData = new FormData()
             formData.append('password', password.value)
             formData.append('email', email.value)
-            axios.post('auth/login', formData).then((response: AxiosResponse) => {
+                axios.post('auth/login', formData).then((response: AxiosResponse) => {
                     store.dispatch('auth', {
                         id: response.data.id,
-                        login: response.data.login
+                        login: response.data.login,
+                        token: response.data.token
                     })
+                    localStorage.setItem("access_token", response.data.token)
                     router.push('/')
-            }).catch((error: AxiosError) => {
-                error_message.value = error?.response?.data?.message
-            })
+                }).catch((error: AxiosError) => {
+                    error_message.value = error?.response?.data?.message
+                })
         }
         return {login, email, password, error_message}
     }

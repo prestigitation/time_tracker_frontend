@@ -63,6 +63,7 @@ export default defineComponent({
         
         const logout = () => {
             store.dispatch('logout').then(() => router.push('/'))
+            localStorage.removeItem("access_token")
         }
         return { user, logout, avaliable_locales, locale }
     }

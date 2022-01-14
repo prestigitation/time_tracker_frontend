@@ -27,12 +27,13 @@ import { AxiosError } from "axios";
 import { useI18n } from 'vue-i18n'
 import { ElNotification } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 export default defineComponent({
     name: 'create-task',
     setup() {
         const axios: any = inject('axios')
         const {t} = useI18n()
-        
+        const store = useStore()
         const router = useRouter()
         const error_message = ref<string>('')
         const loading = ref(false)
@@ -60,27 +61,55 @@ export default defineComponent({
             for(let i = 0; i < task.files.length; i++) {
                 formData.append(`files[${i}]`, task.files[i])
             }
+
             
-            axios.post('/task', formData).then(() => { 
-                router.push('/') 
-                ElNotification({
-                    title: t('tasks.created.title'),
-                    message: t('tasks.created.message'),
-                    type: 'success',
+            await axios.post('/task', formData).then(() => { 
+                    router.push('/') 
+                    ElNotification({
+                        title: t('tasks.created.title'),
+                        message: t('tasks.created.message'),
+                        type: 'success',
+                    })
+                }).catch((error: AxiosError) => {
+                    ElNotification({
+                        title: t('tasks.failed.title'),
+                        message: t('tasks.failed.message'),
+                        type: 'error',
+                    })
+                    error_message.value = error.message
+                    setTimeout(() => {
+                        error_message.value = ''
+                    }, 10000)
+                }).finally(() => {
+                    loading.value = false
                 })
-            }).catch((error: AxiosError) => {
-                ElNotification({
-                    title: t('tasks.failed.title'),
-                    message: t('tasks.failed.message'),
-                    type: 'error',
-                })
-                error_message.value = error.message
-                setTimeout(() => {
-                    error_message.value = ''
-                }, 10000)
-            }).finally(() => {
-                loading.value = false
-            })
+                
+
+        
+                /*axios.post('/task', formData, {
+                    headers: {
+                        'Authorization': 'Bearer ' + store.getters.get_user.token
+                    }
+                }).then(() => { 
+                    router.push('/') 
+                    ElNotification({
+                        title: t('tasks.created.title'),
+                        message: t('tasks.created.message'),
+                        type: 'success',
+                    })
+                }).catch((error: AxiosError) => {
+                    ElNotification({
+                        title: t('tasks.failed.title'),
+                        message: t('tasks.failed.message'),
+                        type: 'error',
+                    })
+                    error_message.value = error.message
+                    setTimeout(() => {
+                        error_message.value = ''
+                    }, 10000)
+                }).finally(() => {
+                    loading.value = false
+                })*/
         }
         const changeTaskValue = (taskInfo: ITaskValue, updatingField: string) => {
             task[updatingField] = taskInfo

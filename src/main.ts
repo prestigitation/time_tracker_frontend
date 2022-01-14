@@ -11,8 +11,10 @@ import i18n from './i18n'
 import Task from './views/Tasks/Task.vue'
 import Subtask from './views/Tasks/Subtask.vue'
 //import 'element-theme-dark';
-
+axios.defaults.withCredentials = true
 axios.defaults.baseURL = 'http://127.0.0.1:8000/api/'
+axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*'
+
 
 let app = createApp(App)
 .use(i18n)
@@ -22,11 +24,13 @@ let app = createApp(App)
 
 
 
+
 app.use(VueAxios, axios)
 app.provide('axios', app.config.globalProperties.axios)
 app.component('task', Task)
 app.component('subtask', Subtask)
 app.mount('#app')
+
 
 
 

@@ -1,19 +1,25 @@
 <template>
 <div class="index_header">
     <span>{{$t('tasks.your_tasks')}}(0)</span>
-    <el-button round type="success" class="index_task_button" @click.prevent="router.push('/task')">+ Новая задача</el-button>
+    <el-button round type="success" class="index_task_button" @click.prevent="router.push('/task')">+ {{ $t('tasks.add') }} </el-button>
+    {{tasks}}
 </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, inject, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
 export default defineComponent({
     name: 'index',
     setup() {
         const router = useRouter()
-        return {router}
+        const axios: any = inject('axios')
+        let tasks = reactive([])
+        axios.get('task').then(({data}) => {
+            tasks = data
+        })
+        return {router, tasks}
     }
 })
 </script>

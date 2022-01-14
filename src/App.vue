@@ -12,7 +12,7 @@
 <script lang="ts">
 //TODO: запись видео (опционально аудио)
 import './assets/index.scss'
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, inject, onBeforeMount } from 'vue'
 import  AppHeader from './components/AppHeader.vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
@@ -26,7 +26,32 @@ export default defineComponent({
     const store = useStore()
     const i18n = useI18n()
     const router = useRouter()
-    console.log(i18n)
+    const axios: any = inject('axios')
+
+    onBeforeMount(async () => {
+      let csrf = ''
+      await axios.get('csrf').then((response) => {
+        csrf = response.data.token
+      })
+      console.log(csrf);
+      
+      axios.interceptors.request.use(async (config: any) => {
+          config.headers.common['X-CSRF-TOKEN'] = csrf
+          let access_token = localStorage.getItem("access_token")
+          if(access_token) {
+            config.headers.authorization = `Bearer ${access_token}`
+          }
+          return config
+        })
+        axios.interceptors.response.use((config) => {
+            return config
+          },error => {
+            if(error.response.status == 401) {
+              router.push('/login')
+          }
+          return Promise.reject(error)
+      })
+    })
 
     router.beforeEach((to, from, next) => {
       let locale = computed(() => store.getters.get_locale)

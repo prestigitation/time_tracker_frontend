@@ -25,12 +25,6 @@ export default defineComponent({
         const axios: any = inject('axios')
         const store = useStore()
         const router = useRouter()
-
-        onBeforeMount(() => {
-            if(store.getters.get_user.login && store.getters.get_user.login) {
-                router.push('/')
-            }
-        })
         
         let email = ref('')
         let password = ref('')
@@ -39,18 +33,20 @@ export default defineComponent({
         
         let register =  async () : Promise<any> => {
             let formData = new FormData()
-            formData.append('login', login.value)
+            formData.append('name', login.value)
             formData.append('password', password.value)
             formData.append('email', email.value)
-            axios.post('auth/register', formData).then((response: AxiosResponse) => {
-                store.dispatch('auth', {
-                    id: response.data.id,
-                    login: response.data.login
+                axios.post('auth/register', formData).then((response: AxiosResponse) => {
+                    store.dispatch('auth', {
+                        id: response.data.id,
+                        login: response.data.login,
+                        token: response.data.token
+                    })
+                    localStorage.setItem("access_token", response.data.token)
+                    router.push('/')
+                }).catch((error: AxiosError) => {
+                    error_message.value = error.message
                 })
-                router.push('/')
-            }).catch((error: AxiosError) => {
-                error_message.value = error.message
-            })
         }
         return {register, error_message, email, login, password}
     }
