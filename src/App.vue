@@ -16,7 +16,7 @@ import { defineComponent, computed, inject, onBeforeMount } from 'vue'
 import  AppHeader from './components/AppHeader.vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 export default defineComponent({
   name: 'app',
   components: {
@@ -29,6 +29,8 @@ export default defineComponent({
     const axios: any = inject('axios')
 
     onBeforeMount(async () => {
+      await router.isReady()
+      const route = useRoute()
       let csrf = ''
       await axios.get('csrf').then((response) => {
         csrf = response.data.token
@@ -46,7 +48,7 @@ export default defineComponent({
         axios.interceptors.response.use((config) => {
             return config
           },error => {
-            if(error.response.status == 401) {
+            if(error.response.status == 401 || (!localStorage.getItem("access_token") && route.path !== '/register')) {
               router.push('/login')
           }
           return Promise.reject(error)

@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, watch } from 'vue'
+import { defineComponent, computed, ref, watch, inject } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { Locale, useI18n } from 'vue-i18n'
@@ -47,6 +47,7 @@ export default defineComponent({
     setup(props, {emit}) {
         const store = useStore()
         const router = useRouter()
+        const axios: any = inject('axios')
         const i18n = useI18n()
         const {t} = useI18n()
         
@@ -61,7 +62,8 @@ export default defineComponent({
             emit('changeLocale', currentLocale)
         })
         
-        const logout = () => {
+        const logout = async () => {
+            await axios.post('auth/logout')
             store.dispatch('logout').then(() => router.push('/'))
             localStorage.removeItem("access_token")
         }

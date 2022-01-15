@@ -17,8 +17,8 @@
         "your_tasks": "Your tasks",
         "add": "Add task",
         "create": "New Task",
-        "title": "{type} title",
-        "priority": "{type} priority",
+        "title": "{type} Title",
+        "priority": "{type} Priority",
         "description": "Give more information about the {type}",
         "due_date": "Due date",
         "files": "You can attach some files to this task",
@@ -38,9 +38,19 @@
             "title": "Task create",
             "message": "The task was successfully created!"
         },
+        "delete": {
+            "title": "Deleting task",
+            "text": "Are you sure you want to delete this task?",
+            "confirm": "Delete",
+            "reject": "Cancel"
+        },
         "failed": {
             "title": "Task create",
             "message": "The task wasn`t created. Check your input fields for correct values"
+        },
+        "extended_labels": {
+            "description": "Description",
+            "actions": "Actions"
         }
     }
 }
