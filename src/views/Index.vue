@@ -1,7 +1,7 @@
 <template>
 <div v-loading="loading">
     <div>
-        <span>{{$t('tasks.your_tasks')}}({{tasks.length}})</span>
+        <span class="index__title">{{$t('tasks.your_tasks')}}({{tasks.length}})</span>
         <el-button type="success" class="index_task_button" @click.prevent="router.push('/task')">+ {{ $t('tasks.add') }} </el-button>
     </div>
     <div>
@@ -29,7 +29,7 @@
 <el-dialog v-model="deleteModalOpened" :title="$t('tasks.delete.title')">
     <div v-text="$t('tasks.delete.text')" />
     <template #footer>
-        <el-button>{{ $t('tasks.delete.reject')}}</el-button>
+        <el-button @click.prevent="deleteModalOpened = false">{{ $t('tasks.delete.reject')}}</el-button>
         <el-button type="danger">{{ $t('tasks.delete.confirm')}}</el-button>
     </template>
 </el-dialog>
@@ -81,15 +81,12 @@ export default defineComponent({
         }
 
         const deleteTask = () => {
-            console.log('as');
-            
             deleteModalOpened.value = true
         }
 
         onMounted(async () => {
             await getTasks().finally(() => {
-                if(tasks.value.length > 0) 
-                    loading.value = false 
+                loading.value = false 
             })
         })
 
@@ -103,6 +100,10 @@ export default defineComponent({
     &_task_button {
         margin-left: 10px;
         margin-right: 10px;
+    }
+    &__title {
+        font-size: 22px;
+        font-weight: bold;
     }
 }
 </style>

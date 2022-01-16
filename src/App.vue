@@ -12,11 +12,22 @@
 <script lang="ts">
 //TODO: запись видео (опционально аудио)
 import './assets/index.scss'
-import { defineComponent, computed, inject, onBeforeMount } from 'vue'
+
 import  AppHeader from './components/AppHeader.vue'
+
+import { defineComponent, computed, inject, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
+import axios from 'axios'
+
+axios.interceptors.request.use(async (config: any) => {
+  const access_token = localStorage.getItem("access_token")
+  config.headers.common['Authorization'] = `Bearer ${access_token}`
+  config.headers.common['Locale'] = localStorage.getItem('locale') ?? 'en'
+  return config
+})
+
 export default defineComponent({
   name: 'app',
   components: {
@@ -31,21 +42,7 @@ export default defineComponent({
     onBeforeMount(async () => {
       await router.isReady()
       const route = useRoute()
-      let csrf = ''
-      await axios.get('csrf').then((response) => {
-        csrf = response.data.token
-      })
-      console.log(csrf);
-      
-      axios.interceptors.request.use(async (config: any) => {
-          config.headers.common['X-CSRF-TOKEN'] = csrf
-          let access_token = localStorage.getItem("access_token")
-          if(access_token) {
-            config.headers.authorization = `Bearer ${access_token}`
-          }
-          return config
-        })
-        axios.interceptors.response.use((config) => {
+      axios.interceptors.response.use((config) => {
             return config
           },error => {
             if(error.response.status == 401 || (!localStorage.getItem("access_token") && route.path !== '/register')) {
@@ -53,6 +50,7 @@ export default defineComponent({
           }
           return Promise.reject(error)
       })
+      
     })
 
     router.beforeEach((to, from, next) => {
@@ -69,6 +67,7 @@ export default defineComponent({
     const changeLocale = (locale: string) => {
       store.dispatch('change_locale', locale)
       setLocale(locale)
+      localStorage.setItem('locale', locale)
     }
     return {
       changeLocale

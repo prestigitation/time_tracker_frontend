@@ -58,7 +58,7 @@ export default defineComponent({
 
         watch(
         () => { return locale.value}, 
-        (currentLocale, previousLocalee) => {
+        (currentLocale, previousLocale) => {
             emit('changeLocale', currentLocale)
         })
         
