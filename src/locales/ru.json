@@ -17,8 +17,19 @@
         "your_tasks": "Ваши задачи",
         "add": "Добавить задачу",
         "create": "Новая задача",
-        "title": "Описание {type}",
-        "priority": "Приоритет {type}",
+        "title": "Название {type}",
+        "no_information": "Нет информации",
+        "tags": {
+            "title": "Теги",
+            "add": "Добавить тэг"
+        },
+        "spent_time": {
+            "title": "Учет времени"
+        },
+        "priority": {
+            "title": "Приоритет {type}",
+            "add": "Добавить приоритет"
+        },
         "description": "Опишите текст {type} поподробнее",
         "due_date": "Дата окончания",
         "files": "Вы можете прикрепить файлы",
@@ -50,7 +61,8 @@
         },
         "extended_labels": {
             "description": "Описание",
-            "actions": "Действия"
+            "actions": "Действия",
+            "no_info": "Не указано"
         }
     }
 }

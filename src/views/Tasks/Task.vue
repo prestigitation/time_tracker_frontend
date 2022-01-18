@@ -5,8 +5,15 @@
         <el-form v-loading="loading"  class="task_form" enctype="multipart/form-data" method="post">
             <el-form-item  :label="$t('tasks.title', {type: subtask ? $t('tasks.subtasks.name') : $t('tasks.name')})" /> 
             <el-input v-model="title" @input="matchData('title', $event)" />
-            <el-form-item  :label="$t('tasks.priority', {type: subtask ? $t('tasks.subtasks.name') : $t('tasks.name')})" /> 
-            <el-input :priority="priority" />
+            <el-form-item  :label="$t('tasks.priority.title')" />  
+            <el-select @input="matchData('priority', $event)" v-model="priority">
+                <el-option
+                    v-for="priority: any in priorities"
+                    :key="priority.id"
+                    :label="priority.title"
+                    :value="priority.id"
+                />
+            </el-select>
             <el-form-item  :label="$t('tasks.description', {type: subtask ? $t('tasks.subtasks.name') : $t('tasks.name')})" /> 
             <el-input type="textarea" v-model="description" @input="matchData('description', $event)" />
             <el-form-item :label="$t('tasks.due_date')" /> 
@@ -38,7 +45,8 @@
 
 <script lang="ts">
 import { ISubtaskEmit } from '@/types/task';
-import { defineComponent, ref, watch } from 'vue'
+import { AxiosResponse } from 'axios';
+import { defineComponent, ref, watch, reactive, onMounted, inject, nextTick } from 'vue'
 import useShortcuts  from '../../hooks/useShortcuts'
 export default defineComponent({
     name: 'task',
@@ -69,12 +77,28 @@ export default defineComponent({
         }
     },
     setup(props, {emit}) {
+        const axios: any = inject('axios')
+
         const title = ref<string>('')
+        const priorities = ref([])
         const priority = ref('')
         const ended_at = ref('')
         const description = ref<string>('')
         //const tags = ref('')
         const files = ref<File[]>([])
+
+
+        onMounted(async() => {
+            await getPriorities()
+        })
+
+
+        const getPriorities = async () => {
+            const allTasks = await axios.get('priority').then((response: AxiosResponse) => {
+                return response.data
+            })
+            priorities.value = allTasks
+        }
         const addTask = () => {}
         const setFiles = (event: any) => {
             emit('update:files', event.target.files)
@@ -114,6 +138,7 @@ export default defineComponent({
         const { shortcuts } = useShortcuts()
         return {
             title,
+            priorities,
             priority,
             ended_at,
             description,

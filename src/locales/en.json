@@ -17,8 +17,19 @@
         "your_tasks": "Your tasks",
         "add": "Add task",
         "create": "New Task",
+        "no_information": "Нет информации",
         "title": "{type} Title",
-        "priority": "{type} Priority",
+        "tags": {
+            "title": "Tags",
+            "add": "Add new tag"
+        },
+        "spent_time": {
+            "title": "Total spent time"
+        },
+        "priority": {
+            "title": "{type} Priority",
+            "add": "Add priority"
+        },
         "description": "Give more information about the {type}",
         "due_date": "Due date",
         "files": "You can attach some files to this task",
@@ -50,7 +61,8 @@
         },
         "extended_labels": {
             "description": "Description",
-            "actions": "Actions"
+            "actions": "Actions",
+            "no_info": "No information"
         }
     }
 }
