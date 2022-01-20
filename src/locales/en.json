@@ -19,6 +19,9 @@
         "create": "New Task",
         "no_information": "Нет информации",
         "title": "{type} Title",
+        "hours": {
+            "title": "Amount of hours"
+        },
         "tags": {
             "title": "Tags",
             "add": "Add new tag"
@@ -53,7 +56,13 @@
             "title": "Deleting task",
             "text": "Are you sure you want to delete this task?",
             "confirm": "Delete",
-            "reject": "Cancel"
+            "reject": "Cancel",
+            "success": {
+                "message": "Task was succesfully deleted!"
+            },
+            "failed": {
+                "message": "Task wasn`t deleted"
+            }
         },
         "failed": {
             "title": "Task create",

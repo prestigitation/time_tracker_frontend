@@ -3,8 +3,8 @@ interface ITask {
     description: string,
     ended_at: string,
     files: FileList | [],
-    //priority: string,
-    //tags: string
+    hours: string,
+    priority: string,
 }
 interface ISubtask extends ITask {}
 

@@ -6,7 +6,7 @@
             <el-form-item  :label="$t('tasks.title', {type: subtask ? $t('tasks.subtasks.name') : $t('tasks.name')})" /> 
             <el-input v-model="title" @input="matchData('title', $event)" />
             <el-form-item  :label="$t('tasks.priority.title')" />  
-            <el-select @input="matchData('priority', $event)" v-model="priority">
+            <el-select @change="matchData('priority', $event)" v-model="priority">
                 <el-option
                     v-for="priority: any in priorities"
                     :key="priority.id"
@@ -16,6 +16,8 @@
             </el-select>
             <el-form-item  :label="$t('tasks.description', {type: subtask ? $t('tasks.subtasks.name') : $t('tasks.name')})" /> 
             <el-input type="textarea" v-model="description" @input="matchData('description', $event)" />
+            <el-form-item  :label="$t('tasks.hours.title')" /> 
+            <el-input v-model="hours" @input="matchData('hours', $event)" />
             <el-form-item :label="$t('tasks.due_date')" /> 
             <div class="date_picker">
                 <el-date-picker
@@ -59,6 +61,10 @@ export default defineComponent({
         'update:subtask_ended_at',
         'update:files',
         'update:subtask_files',
+        'update:hours',
+        'update:subtask_hours',
+        'update:priority',
+        'update:subtask_priority',
 
         'openNewSubtask'
     ],
@@ -84,9 +90,9 @@ export default defineComponent({
         const priority = ref('')
         const ended_at = ref('')
         const description = ref<string>('')
-        //const tags = ref('')
+        const hours = ref('0')
         const files = ref<File[]>([])
-
+        const { shortcuts } = useShortcuts()
 
         onMounted(async() => {
             await getPriorities()
@@ -132,10 +138,6 @@ export default defineComponent({
         const openNewSubtask = () => {
             emit('openNewSubtask')
         }
-        watch(() => props.loading, (previous, current) => {
-            console.log(`previoust ${previous} current: ${current}`)
-        })
-        const { shortcuts } = useShortcuts()
         return {
             title,
             priorities,
@@ -144,13 +146,13 @@ export default defineComponent({
             description,
             files,
             shortcuts,
+            hours,
             addTask,
             changeField,
             changeSubtaskField,
             openNewSubtask,
             setFiles,
             matchData,
-
         }
     },
 })

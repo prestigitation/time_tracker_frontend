@@ -18,6 +18,14 @@
                     value: $event,
                     index
                 })"
+                @update:subtask_hours="changeSubtaskValue('hours', {
+                    value: $event,
+                    index
+                })"
+                @update:subtask_priority="changeSubtaskValue('priority', {
+                    value: $event,
+                    index
+                })"
             />
         </div>
         <div class="subtask__closed">
@@ -32,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from "vue";
+import { defineComponent } from "vue";
 import { ISubtaskEmit } from '../../types/task'
 export default defineComponent({
     name: "subtask",
@@ -42,7 +50,11 @@ export default defineComponent({
         'update:title',
         'update:subtask_title',
         'update:ended_at',
-        'update:subtask_ended_at'
+        'update:subtask_ended_at',
+        'update:hours',
+        'update:subtask_hours',
+        'update:priority',
+        'update:subtask_priority'
     ],
     props: {
         subtasks: {

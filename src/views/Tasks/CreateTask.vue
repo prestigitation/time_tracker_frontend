@@ -5,10 +5,15 @@
         @update:title="changeTaskValue($event,'title')"
         @update:ended_at="changeTaskValue($event,'ended_at')"
         @update:files="changeTaskValue($event,'files')"
+        @update:hours="changeTaskValue($event,'hours')"
+        @update:priority="changeTaskValue($event,'priority')"
         
         @update:subtask_description="changeSubtaskValue"
         @update:subtask_title="changeSubtaskValue"
+        @update:subtask_hours="changeSubtaskValue"
         @update:subtask_ended_at="changeSubtaskDueDate"
+        @update:subtask_priority="changeSubtaskDueDate"
+        
         
         :subtasks="subtasks"
         @openNewSubtask="openSubtask"
@@ -27,13 +32,11 @@ import { AxiosError } from "axios";
 import { useI18n } from 'vue-i18n'
 import { ElNotification } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { useStore } from 'vuex'
 export default defineComponent({
     name: 'create-task',
     setup() {
         const axios: any = inject('axios')
         const {t} = useI18n()
-        const store = useStore()
         const router = useRouter()
         const error_message = ref<string>('')
         const loading = ref(false)
@@ -42,7 +45,9 @@ export default defineComponent({
             title: '',
             description: '',
             ended_at: '',
-            files: []
+            files: [],
+            hours: '',
+            priority: ''
         })
         
         const openSubtask = () => {
@@ -50,7 +55,9 @@ export default defineComponent({
                 title: '',
                 description: '',
                 ended_at: '',
-                files: []
+                files: [],
+                hours: '',
+                priority: ''
             });
         }
         const addTask = async () => {
@@ -83,39 +90,11 @@ export default defineComponent({
                 }).finally(() => {
                     loading.value = false
                 })
-                
-
-        
-                /*axios.post('/task', formData, {
-                    headers: {
-                        'Authorization': 'Bearer ' + store.getters.get_user.token
-                    }
-                }).then(() => { 
-                    router.push('/') 
-                    ElNotification({
-                        title: t('tasks.created.title'),
-                        message: t('tasks.created.message'),
-                        type: 'success',
-                    })
-                }).catch((error: AxiosError) => {
-                    ElNotification({
-                        title: t('tasks.failed.title'),
-                        message: t('tasks.failed.message'),
-                        type: 'error',
-                    })
-                    error_message.value = error.message
-                    setTimeout(() => {
-                        error_message.value = ''
-                    }, 10000)
-                }).finally(() => {
-                    loading.value = false
-                })*/
         }
         const changeTaskValue = (taskInfo: ITaskValue, updatingField: string) => {
             task[updatingField] = taskInfo
         }
         const changeSubtaskValue = (subtaskInfo: ISubtaskStructure) => {
-            console.log(subtaskInfo);
             subtasks[subtaskInfo.index][subtaskInfo.updatingField] = subtaskInfo.value
         }
         const changeSubtaskDueDate = (subtaskInfo: ISubtaskStructure) => {

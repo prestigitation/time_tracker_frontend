@@ -24,14 +24,18 @@
             width="180"
             > 
             <template #default="scope">
-                <span v-if="!scope.row.spent_time">
-                    <Time />
+                <span v-if="scope.row.spent_time">
+                    <Time
+                        @sync_time="syncTime($event, scope.row.id)"
+                        :time="scope.row.spent_time"
+                    />
                 </span>
                 <span v-else>
                     {{ $t('tasks.no_information')}}
                 </span>
             </template>
             </el-table-column>
+            <el-table-column prop="hours" :label="$t('tasks.hours.title')" width="100" />
             <el-table-column
             prop="priority"
             :label="$t('tasks.priority.title')"
@@ -79,7 +83,7 @@
             
             
             <el-table-column :label="$t('tasks.extended_labels.actions')" width="180"> 
-                <el-button type="danger" @click.prevent="deleteTask()" circle>
+                <el-button type="danger" @click.prevent="deleteModalOpened = true" circle>
                     <Delete width="20" height="20" /> 
                 </el-button>
             </el-table-column>
@@ -93,7 +97,7 @@
     <div v-text="$t('tasks.delete.text')" />
     <template #footer>
         <el-button v-if="$t('tasks.delete.reject')" @click.prevent="deleteModalOpened = false">{{ $t('tasks.delete.reject')}}</el-button>
-        <el-button v-if="$t('tasks.delete.confirm')" type="danger">{{ $t('tasks.delete.confirm')}}</el-button>
+        <el-button v-if="$t('tasks.delete.confirm')" @click.prevent="deleteTask" type="danger">{{ $t('tasks.delete.confirm')}}</el-button>
     </template>
 </el-dialog>
 
@@ -101,7 +105,7 @@
 
 <script lang="ts">
 import { AxiosResponse } from 'axios'
-import { defineComponent, inject, ref,  onMounted } from 'vue'
+import { defineComponent, inject, ref,  onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 
 import {
@@ -110,6 +114,8 @@ import {
 } from '@element-plus/icons-vue'
 import Attachment from './Tasks/Attachment.vue'
 import Time from './Tasks/Time.vue'
+import { ElNotification } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
     components: {
@@ -122,10 +128,13 @@ export default defineComponent({
     setup() {
         const router = useRouter()
         const axios: any = inject('axios')
+        const {t} = useI18n()
+        
         const tasks = ref([])
         const loading = ref(true)
-        const currentRow = ref(undefined)
+        const currentRowId = ref(undefined)
         const deleteModalOpened = ref(false)
+        
         const getTasks = async () => {
             const allTasks = await axios.get('task').then((response: AxiosResponse) => {
                 return response.data
@@ -134,17 +143,38 @@ export default defineComponent({
         }
 
         const handleTableMouseEnter = (task: any) => {
-            currentRow.value = task.id
+            currentRowId.value = task.id
         }
 
         const handleCellClick = () => {
-            router.push(`/tasks/${currentRow.value}`)
+            router.push(`/tasks/${currentRowId.value}`)
         }
 
 
         const deleteTask = () => {
             deleteModalOpened.value = true
+            axios.delete(`/task/${currentRowId.value}`).then(() => {
+                ElNotification({
+                    title: t('tasks.delete.title'),
+                    message: t('tasks.delete.success.message'),
+                    type: 'success',
+                })
+            }).catch(() => {
+                ElNotification({
+                    title: t('tasks.delete.title'),
+                    message: t('tasks.delete.failed.message'),
+                    type: 'error',
+                })
+            })
         }
+
+        const syncTime = async (event: string, id: number) => {
+            let formData = new FormData()
+            formData.append('id', id.toString())           
+            formData.append('value', event)
+            await axios.post('/task/sync_time', formData)
+        }
+
 
         onMounted(async () => {
             await getTasks().finally(() => {
@@ -152,7 +182,16 @@ export default defineComponent({
             })
         })
 
-        return {router, tasks, handleCellClick, loading, handleTableMouseEnter, deleteTask, deleteModalOpened}
+        return {
+            router, 
+            tasks, 
+            handleCellClick, 
+            loading, 
+            handleTableMouseEnter, 
+            deleteTask, 
+            syncTime, 
+            deleteModalOpened,
+        }
     },
 })
 </script>
