@@ -6,13 +6,14 @@
     </div>
     <div>
         <el-table 
-            :data="tasks" 
+            :data="currentTasks" 
             @cell-mouse-enter="handleTableMouseEnter"
+            @cell-click="taskModalOpened = true"
             class="index__table"
         >
             <el-table-column prop="title" :label="$t('tasks.title')" width="180">
                 <template #default="scope">
-                    <a @click.prevent="handleCellClick">{{scope.row.title}}</a>
+                    <span>{{scope.row.title}}</span>
                 </template>
             </el-table-column>
 
@@ -35,7 +36,7 @@
                 </span>
             </template>
             </el-table-column>
-            <el-table-column prop="hours" :label="$t('tasks.hours.title')" width="100" />
+            <el-table-column prop="hours" :label="$t('tasks.hours.title')" width="150" />
             <el-table-column
             prop="priority"
             :label="$t('tasks.priority.title')"
@@ -80,14 +81,8 @@
                     </div>
                 </template>
             </el-table-column>
-            
-            
-            <el-table-column :label="$t('tasks.extended_labels.actions')" width="180"> 
-                <el-button type="danger" @click.prevent="deleteModalOpened = true" circle>
-                    <Delete width="20" height="20" /> 
-                </el-button>
-            </el-table-column>
         </el-table>
+        <Pagination @update:current-page="changePage" :total="tasks.length" :perPage="perPage" />
     </div>
 </div>
 
@@ -101,13 +96,54 @@
     </template>
 </el-dialog>
 
+<el-dialog v-model="taskModalOpened" width="95%">
+    <keep-alive>
+        <div class="task__wrapper">
+            <div class="task__title">
+                <span v-if="currentTask.title">
+                    {{ currentTask.title }}
+                </span>
+                <span v-if="currentTask.hours">
+                    {{ $t('tasks.hours.dialog_title') }} {{ currentTask.hours }} {{ $t('tasks.hours.measure') }}
+                </span>
+                <span>tags</span> <!-- TODO: tags-->
+            </div>
+            <div class="task__description" v-if="currentTask.description">
+                <span v-text="currentTask.description" />
+            </div>
+            <div class="task__attachments">
+                <div class="task__files" v-if="getFilesLinks(currentTask.files).length">
+                    <div>{{$t('tasks.file.title')}}</div>
+                    <span v-for="file in getFilesLinks(currentTask.files)">
+                        <Image v-if="getFileType(file) === 'image'" :src="file" />
+                    </span>
+                </div>
+                <div class="task__priority" v-if="currentTask.priority_id">
+                    <span>Приоритет:</span>
+                    <Attachment 
+                        :title="currentTask?.priority?.title"
+                        :color="currentTask?.priority?.color" 
+                    />
+                </div>
+            </div>
+        </div>
+    </keep-alive>
+    <template #footer>
+        <el-button type="primary" @click.prevent="editTask">
+            {{ $t('tasks.update.title') }}
+        </el-button>
+        <el-button type="danger" @click.prevent="deleteModalOpened = true">
+            {{ $t('tasks.delete.title') }}
+        </el-button>
+    </template>
+</el-dialog>
+
 </template>
 
 <script lang="ts">
 import { AxiosResponse } from 'axios'
-import { defineComponent, inject, ref,  onMounted, onBeforeUnmount } from 'vue'
+import { defineComponent, inject, ref,  onMounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
-
 import {
     Edit,
     Delete,
@@ -116,13 +152,16 @@ import Attachment from './Tasks/Attachment.vue'
 import Time from './Tasks/Time.vue'
 import { ElNotification } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-
+import Image from '../components/Image.vue'
+import Pagination from '@/components/Pagination.vue'
 export default defineComponent({
     components: {
     Edit,
     Delete,
     Attachment,
-    Time
+    Time,
+    Image,
+    Pagination
 },
     name: 'index',
     setup() {
@@ -130,10 +169,16 @@ export default defineComponent({
         const axios: any = inject('axios')
         const {t} = useI18n()
         
-        const tasks = ref([])
+        const tasks = ref<any[]>([])
         const loading = ref(true)
         const currentRowId = ref(undefined)
+        const currentTask = ref<any>(undefined)
+        const currentPage = ref(1)
+        const total = ref<number|undefined>(undefined)
         const deleteModalOpened = ref(false)
+        const taskModalOpened = ref(false)
+        const perPage = 5
+        
         
         const getTasks = async () => {
             const allTasks = await axios.get('task').then((response: AxiosResponse) => {
@@ -146,8 +191,8 @@ export default defineComponent({
             currentRowId.value = task.id
         }
 
-        const handleCellClick = () => {
-            router.push(`/tasks/${currentRowId.value}`)
+        const editTask = () => {
+            router.push(`/task/${currentRowId.value}`)
         }
 
 
@@ -175,6 +220,39 @@ export default defineComponent({
             await axios.post('/task/sync_time', formData)
         }
 
+        const getFilesLinks = (filesArray: string): Array<string> => {
+            let result: Array<string> = []
+            for(let i = 0; i < filesArray.length; i++) {
+                if(filesArray[i] === '"') {
+                    let closeBracket = filesArray.indexOf('"', i+1)
+                    let link = filesArray.slice(i + 1,closeBracket)
+                    result.push(link)
+                    i = closeBracket + 1
+                }
+            }
+            return result
+        }
+
+        const getFileType = (fileName: string) => {
+            if(fileName.endsWith('jpg') || fileName.endsWith('jpeg') || fileName.endsWith('png')) {
+                return 'image'
+            } else if (fileName.endsWith('mp4') || fileName.endsWith('webm')) return 'video'
+        }
+
+        const changePage = (page: number) => {
+            currentPage.value = page
+        }
+
+        const currentTasks = computed(() => tasks.value.slice(currentPage.value, currentPage.value + perPage))
+
+        watch(() => taskModalOpened.value, 
+            (previousValue: boolean, currentValue: boolean) => {
+                if(previousValue) {
+                    //находим текущую задачу, открывается модальное окно с информацией о ней
+                    currentTask.value = tasks.value.filter(task => task.id === currentRowId.value)[0]
+                }
+        })
+
 
         onMounted(async () => {
             await getTasks().finally(() => {
@@ -185,12 +263,22 @@ export default defineComponent({
         return {
             router, 
             tasks, 
-            handleCellClick, 
             loading, 
-            handleTableMouseEnter, 
-            deleteTask, 
-            syncTime, 
+            taskModalOpened,
             deleteModalOpened,
+            currentTask,
+            perPage,
+            total,
+            currentPage,
+            currentTasks,
+
+            handleTableMouseEnter, 
+            deleteTask,
+            editTask, 
+            syncTime, 
+            getFilesLinks,
+            getFileType,
+            changePage, 
         }
     },
 })
@@ -219,6 +307,27 @@ export default defineComponent({
     }
     &__table {
         margin-top: 20px;
+    }
+}
+.task {
+    &__title {
+        display: flex;
+        justify-content: space-between;
+        font-size: 24px;
+        font-weight: bold;
+    }
+    &__attachments {
+        display: flex;
+        justify-content: space-between;
+    }
+    &__description {
+        margin-top: 25px;
+        display: flex;
+        flex-direction: flex-start;
+        min-height: 300px;
+        @media (min-width: 768px) {
+            min-height: 100px;
+        }
     }
 }
 </style>

@@ -17,7 +17,7 @@
             <el-form-item  :label="$t('tasks.description', {type: subtask ? $t('tasks.subtasks.name') : $t('tasks.name')})" /> 
             <el-input type="textarea" v-model="description" @input="matchData('description', $event)" />
             <el-form-item  :label="$t('tasks.hours.title')" /> 
-            <el-input v-model="hours" @input="matchData('hours', $event)" />
+            <el-input-number v-model="hours" @change="matchData('hours', $event)" />
             <el-form-item :label="$t('tasks.due_date')" /> 
             <div class="date_picker">
                 <el-date-picker
@@ -38,7 +38,9 @@
                 :subtasks="subtasks"
                 @update:subtask_description="changeSubtaskField('description', $event)"
                 @update:subtask_title="changeSubtaskField('title', $event)"
-                @update:subtask_ended_at="changeSubtaskField('ended_at', $event)"  
+                @update:subtask_ended_at="changeSubtaskField('ended_at', $event)"
+                @update:subtask_hours="changeSubtaskField('hours', $event)"
+                @update:subtask_priority="changeSubtaskField('priority', $event)"  
             />
         </el-form>
     </el-col>
@@ -48,7 +50,7 @@
 <script lang="ts">
 import { ISubtaskEmit } from '@/types/task';
 import { AxiosResponse } from 'axios';
-import { defineComponent, ref, watch, reactive, onMounted, inject, nextTick } from 'vue'
+import { defineComponent, ref, onMounted, inject } from 'vue'
 import useShortcuts  from '../../hooks/useShortcuts'
 export default defineComponent({
     name: 'task',
@@ -90,7 +92,7 @@ export default defineComponent({
         const priority = ref('')
         const ended_at = ref('')
         const description = ref<string>('')
-        const hours = ref('0')
+        const hours = ref(0)
         const files = ref<File[]>([])
         const { shortcuts } = useShortcuts()
 

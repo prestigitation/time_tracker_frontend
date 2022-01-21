@@ -12,7 +12,7 @@
         @update:subtask_title="changeSubtaskValue"
         @update:subtask_hours="changeSubtaskValue"
         @update:subtask_ended_at="changeSubtaskDueDate"
-        @update:subtask_priority="changeSubtaskDueDate"
+        @update:subtask_priority="changeSubtaskValue"
         
         
         :subtasks="subtasks"
@@ -95,6 +95,8 @@ export default defineComponent({
             task[updatingField] = taskInfo
         }
         const changeSubtaskValue = (subtaskInfo: ISubtaskStructure) => {
+            console.log(subtaskInfo);
+            
             subtasks[subtaskInfo.index][subtaskInfo.updatingField] = subtaskInfo.value
         }
         const changeSubtaskDueDate = (subtaskInfo: ISubtaskStructure) => {

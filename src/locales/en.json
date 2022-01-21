@@ -19,8 +19,13 @@
         "create": "New Task",
         "no_information": "Нет информации",
         "title": "{type} Title",
+        "file": {
+            "title": "Files"
+        },
         "hours": {
-            "title": "Amount of hours"
+            "title": "Amount of hours",
+            "dialog_title": "Total hours:",
+            "measure": "hrs."
         },
         "tags": {
             "title": "Tags",
@@ -63,6 +68,9 @@
             "failed": {
                 "message": "Task wasn`t deleted"
             }
+        },
+        "update": {
+            "title": "Update task"
         },
         "failed": {
             "title": "Task create",
