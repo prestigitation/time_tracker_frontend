@@ -1,12 +1,12 @@
 <template>
 <div class="pagination__wrapper">
     <div class="pagination_start" v-if="currentPage < step">
-        <div class="pagination__item" v-for="page in step + 1" :key="page" @click.prevent="setCurrentPage(page)">
+        <div class="pagination__item" :class="{pagination__item_active: currentPage === page}" v-for="page in step + 1" :key="page" @click.prevent="setCurrentPage(page)">
             {{page}}
         </div>
     </div>
     <div class="pagination_progress" v-else-if="currentPage >= step">
-        <div class="pagination__item" v-for="page in getProgressSequence()" :key="page" @click.prevent="setCurrentPage(page)">
+        <div class="pagination__item" :class="{pagination__item_active: currentPage === page}" v-for="page in getProgressSequence()" :key="page" @click.prevent="setCurrentPage(page)">
             {{page}}
         </div>
     </div>
@@ -32,7 +32,7 @@ export default defineComponent({
                     result.push(i)
                 }
             } else {
-                for(let i = pagesAmount.value - step - 1; i < pagesAmount.value; i++) {
+                for(let i = pagesAmount.value - step - 1; i < pagesAmount.value + 1; i++) {
                     result.push(i)
                 }
             }
@@ -70,6 +70,13 @@ export default defineComponent({
         margin: 0 10px 0 10px;
         padding: 10px;
         background: #42b883;
+        &:hover {
+            cursor: pointer;
+        }
+        &_active {
+            border: 2px solid black;
+        }
     }
 }
+
 </style>

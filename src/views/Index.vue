@@ -129,6 +129,12 @@
         </div>
     </keep-alive>
     <template #footer>
+        <span @click.prevent="recordVideo" v-if="!isRecording">
+            Записать видео
+        </span>
+        <span @click.prevent="stopVideo" v-else>
+            Остановить запись
+        </span>
         <el-button type="primary" @click.prevent="editTask">
             {{ $t('tasks.update.title') }}
         </el-button>
@@ -177,6 +183,7 @@ export default defineComponent({
         const total = ref<number|undefined>(undefined)
         const deleteModalOpened = ref(false)
         const taskModalOpened = ref(false)
+        const isRecording = ref(false)
         const perPage = 5
         
         
@@ -243,7 +250,37 @@ export default defineComponent({
             currentPage.value = page
         }
 
-        const currentTasks = computed(() => tasks.value.slice(currentPage.value, currentPage.value + perPage))
+        let mediaRecorder
+        let chunks: any[] = []
+        const pushNewChunks = (e) => {
+            chunks.push(e.data)
+        }
+        const recordVideo = async() => {
+            let stream
+            // @ts-ignore
+            stream = await navigator.mediaDevices.getDisplayMedia({
+                audio: true,
+                video: true
+            })
+            // @ts-ignore
+            mediaRecorder = new MediaRecorder(stream)
+            mediaRecorder.start()
+            // @ts-ignore
+            mediaRecorder.ondataavailable = pushNewChunks
+            isRecording.value = true
+
+        }
+
+        const stopVideo = async() => {
+            mediaRecorder.stop()
+            isRecording.value = false
+            mediaRecorder.removeEventListener('dataavailable', pushNewChunks)
+            const blob = new Blob(chunks, { 'type' : 'video/mp4' });
+            console.log(blob);
+            
+        }
+
+        const currentTasks = computed(() => tasks.value.slice((currentPage.value - 1) * perPage, (currentPage.value * perPage) - 1))
 
         watch(() => taskModalOpened.value, 
             (previousValue: boolean, currentValue: boolean) => {
@@ -271,7 +308,10 @@ export default defineComponent({
             total,
             currentPage,
             currentTasks,
+            isRecording,
 
+            stopVideo,
+            recordVideo,
             handleTableMouseEnter, 
             deleteTask,
             editTask, 
