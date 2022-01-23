@@ -17,8 +17,19 @@
         "your_tasks": "Your tasks",
         "add": "Add task",
         "create": "New Task",
-        "no_information": "Нет информации",
+        "no_information": "No information",
         "title": "{type} Title",
+        "video": {
+            "record": {
+                "title": "Capture the video"
+            },
+            "stop": {
+                "title": "Stop recording"
+            }
+        },
+        "preview": {
+            "title": "Video preview(click here)"
+        },
         "file": {
             "title": "Files"
         },

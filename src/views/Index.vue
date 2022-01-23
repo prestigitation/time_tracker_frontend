@@ -129,11 +129,19 @@
         </div>
     </keep-alive>
     <template #footer>
-        <span @click.prevent="recordVideo" v-if="!isRecording">
-            Записать видео
-        </span>
-        <span @click.prevent="stopVideo" v-else>
-            Остановить запись
+        <span class="video__recorder">
+            <span @click.prevent="recordVideo" v-if="!isRecording">
+                <video-play width="20" height="20" color="green"/>
+                <span>
+                    {{$t('tasks.video.record.title')}}
+                </span>
+            </span>
+            <span @click.prevent="stopVideo" v-else>
+                <video-pause width="20" height="20" color="red"/>
+                <span>
+                    {{$t('tasks.video.stop.title')}}
+                </span>
+            </span>
         </span>
         <el-button type="primary" @click.prevent="editTask">
             {{ $t('tasks.update.title') }}
@@ -143,7 +151,20 @@
         </el-button>
     </template>
 </el-dialog>
-
+<el-dialog v-model="videoPreviewModalOpened">
+    <div @click.prevent="showVideoPreview">{{ $t('tasks.preview.title') }}</div>
+    <video 
+        id="preview" 
+        controls 
+        width="800" 
+        height="600" 
+    />
+    <template #footer>
+        <el-button type="primary" @click.prevent="sendVideo">
+            Отправить видео
+        </el-button>
+    </template>
+</el-dialog>
 </template>
 
 <script lang="ts">
@@ -153,6 +174,8 @@ import { useRouter } from 'vue-router'
 import {
     Edit,
     Delete,
+    VideoPause,
+    VideoPlay
 } from '@element-plus/icons-vue'
 import Attachment from './Tasks/Attachment.vue'
 import Time from './Tasks/Time.vue'
@@ -167,7 +190,9 @@ export default defineComponent({
     Attachment,
     Time,
     Image,
-    Pagination
+    Pagination,
+    VideoPause,
+    VideoPlay
 },
     name: 'index',
     setup() {
@@ -175,15 +200,23 @@ export default defineComponent({
         const axios: any = inject('axios')
         const {t} = useI18n()
         
+        let mediaRecorder
+        let chunks: any[] = []
+        let blob
+        let url
+        
         const tasks = ref<any[]>([])
         const loading = ref(true)
         const currentRowId = ref(undefined)
         const currentTask = ref<any>(undefined)
         const currentPage = ref(1)
-        const total = ref<number|undefined>(undefined)
+        
         const deleteModalOpened = ref(false)
         const taskModalOpened = ref(false)
         const isRecording = ref(false)
+        const videoPreviewModalOpened = ref(false)
+        
+        
         const perPage = 5
         
         
@@ -250,8 +283,6 @@ export default defineComponent({
             currentPage.value = page
         }
 
-        let mediaRecorder
-        let chunks: any[] = []
         const pushNewChunks = (e) => {
             chunks.push(e.data)
         }
@@ -267,27 +298,42 @@ export default defineComponent({
             mediaRecorder.start()
             // @ts-ignore
             mediaRecorder.ondataavailable = pushNewChunks
+            mediaRecorder.onstop = stopVideo
             isRecording.value = true
-
         }
 
-        const stopVideo = async() => {
+        const stopVideo = () => {
             mediaRecorder.stop()
             isRecording.value = false
             mediaRecorder.removeEventListener('dataavailable', pushNewChunks)
-            const blob = new Blob(chunks, { 'type' : 'video/mp4' });
-            console.log(blob);
-            
+            videoPreviewModalOpened.value = true
+        }
+
+        const showVideoPreview = () => {
+            blob = new Blob(chunks, { 'type' : 'video/mp4' });
+            url = URL.createObjectURL(blob)
+            // @ts-ignore
+            document.getElementById('preview').src = url
+        }
+
+        const sendVideo = async() => {
+            let formData = new FormData()
+            formData.append('file', blob)
+            await axios.post(`/task/${currentRowId.value}/file`, formData).finally(async () => {
+                videoPreviewModalOpened.value = false
+                taskModalOpened.value = false
+                await getTasks()
+            })
         }
 
         const currentTasks = computed(() => tasks.value.slice((currentPage.value - 1) * perPage, (currentPage.value * perPage) - 1))
 
         watch(() => taskModalOpened.value, 
             (previousValue: boolean, currentValue: boolean) => {
-                if(previousValue) {
-                    //находим текущую задачу, открывается модальное окно с информацией о ней
-                    currentTask.value = tasks.value.filter(task => task.id === currentRowId.value)[0]
-                }
+            if(previousValue) {
+                //находим текущую задачу, открывается модальное окно с информацией о ней
+                currentTask.value = tasks.value.filter(task => task.id === currentRowId.value)[0]
+            }
         })
 
 
@@ -305,13 +351,14 @@ export default defineComponent({
             deleteModalOpened,
             currentTask,
             perPage,
-            total,
-            currentPage,
             currentTasks,
             isRecording,
+            videoPreviewModalOpened,
 
             stopVideo,
             recordVideo,
+            showVideoPreview,
+            sendVideo,
             handleTableMouseEnter, 
             deleteTask,
             editTask, 
@@ -369,5 +416,9 @@ export default defineComponent({
             min-height: 100px;
         }
     }
+}
+.video__recorder {
+    margin-left: 10px;
+    margin-right: 10px;
 }
 </style>
