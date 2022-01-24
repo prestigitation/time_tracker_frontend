@@ -113,10 +113,20 @@
             </div>
             <div class="task__attachments">
                 <div class="task__files" v-if="getFilesLinks(currentTask.files).length">
-                    <div>{{$t('tasks.file.title')}}</div>
-                    <span v-for="file in getFilesLinks(currentTask.files)">
-                        <Image v-if="getFileType(file) === 'image'" :src="file" />
-                    </span>
+                    <div class="task__files_title">{{$t('tasks.file.title')}}</div>
+                    <div class="task__files_container">
+                        <div v-for="file in getFilesLinks(currentTask.files)">
+                            <Image v-if="getFileType(file) === 'image'" :src="file" />
+                            <span v-else-if="getFileType(file) === 'video'">
+                                <video 
+                                    :src="file" 
+                                    width="100" 
+                                    height="100"
+                                    @click.prevent="getPreview"
+                                />
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 <div class="task__priority" v-if="currentTask.priority_id">
                     <span>Приоритет:</span>
@@ -152,24 +162,24 @@
     </template>
 </el-dialog>
 <el-dialog v-model="videoPreviewModalOpened">
-    <div @click.prevent="showVideoPreview">{{ $t('tasks.preview.title') }}</div>
     <video 
-        id="preview" 
+        id="preview"
+        ref="preview" 
         controls 
         width="800" 
         height="600" 
     />
     <template #footer>
-        <el-button type="primary" @click.prevent="sendVideo">
-            Отправить видео
+        <el-button type="primary" @click.prevent="sendVideo" v-if="sourcePreviewOpened">
+            {{$t('tasks.video.send.button_sign')}}
         </el-button>
     </template>
 </el-dialog>
 </template>
 
 <script lang="ts">
-import { AxiosResponse } from 'axios'
-import { defineComponent, inject, ref,  onMounted, watch, computed } from 'vue'
+import { AxiosResponse, AxiosError } from 'axios'
+import { defineComponent, inject, ref,  onMounted, watch, computed, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import {
     Edit,
@@ -204,6 +214,7 @@ export default defineComponent({
         let chunks: any[] = []
         let blob
         let url
+        let link
         
         const tasks = ref<any[]>([])
         const loading = ref(true)
@@ -215,6 +226,8 @@ export default defineComponent({
         const taskModalOpened = ref(false)
         const isRecording = ref(false)
         const videoPreviewModalOpened = ref(false)
+        const preview = ref(null)
+        
         
         
         const perPage = 5
@@ -309,24 +322,49 @@ export default defineComponent({
             videoPreviewModalOpened.value = true
         }
 
-        const showVideoPreview = () => {
-            blob = new Blob(chunks, { 'type' : 'video/mp4' });
-            url = URL.createObjectURL(blob)
+        const showVideoPreview = (data: any[] = chunks) => {
+            if(link) {
+                url = link
+            } else {
+                blob = new Blob(data, { 'type' : 'video/mp4' });
+                url = URL.createObjectURL(blob)
+            }
             // @ts-ignore
-            document.getElementById('preview').src = url
+            preview.value.src = url
         }
 
         const sendVideo = async() => {
             let formData = new FormData()
             formData.append('file', blob)
-            await axios.post(`/task/${currentRowId.value}/file`, formData).finally(async () => {
+            await axios.post(`/task/${currentRowId.value}/file`, formData).then((response: AxiosResponse) => {
+                ElNotification({
+                    title: t('tasks.video.send.title'),
+                    message: t('tasks.video.send.success.message'),
+                    type: 'success',
+                })
+            }).catch((error: AxiosError) => {
+                ElNotification({
+                    title: t('tasks.video.send.title'),
+                    message: t('tasks.video.send.fail.message'),
+                    type: 'error',
+                })
+            }).finally(async () => {
                 videoPreviewModalOpened.value = false
                 taskModalOpened.value = false
                 await getTasks()
             })
         }
 
+        const getPreview = (event: any) => {
+            link = event.target.src
+            videoPreviewModalOpened.value = true
+        }
+
         const currentTasks = computed(() => tasks.value.slice((currentPage.value - 1) * perPage, (currentPage.value * perPage) - 1))
+        // source preview - означает, что видео было открыто не из блоба(сгенерировано рекордером), 
+        // а по ссылке с бэкэнда, где он хранится
+        const sourcePreviewOpened = computed(() => !videoPreviewModalOpened.value)
+
 
         watch(() => taskModalOpened.value, 
             (previousValue: boolean, currentValue: boolean) => {
@@ -335,6 +373,17 @@ export default defineComponent({
                 currentTask.value = tasks.value.filter(task => task.id === currentRowId.value)[0]
             }
         })
+
+        watchEffect(
+            () => { 
+                if(videoPreviewModalOpened.value) {
+                    showVideoPreview()
+                }
+            }, 
+            {
+                flush: 'post'
+            }
+        )
 
 
         onMounted(async () => {
@@ -354,10 +403,12 @@ export default defineComponent({
             currentTasks,
             isRecording,
             videoPreviewModalOpened,
+            preview,
+            sourcePreviewOpened,
 
             stopVideo,
             recordVideo,
-            showVideoPreview,
+            getPreview,
             sendVideo,
             handleTableMouseEnter, 
             deleteTask,
@@ -414,6 +465,21 @@ export default defineComponent({
         min-height: 300px;
         @media (min-width: 768px) {
             min-height: 100px;
+        }
+    }
+    &__files {
+        display: flex;
+        flex-direction: column;
+        &_title {
+            display: flex;
+            justify-content: flex-start;
+            padding: 10px 0 10px 0;
+        }
+        &_container {
+            display: flex;
+            &>div {
+                margin: 0 10px 0 10px;
+            }
         }
     }
 }

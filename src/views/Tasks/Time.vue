@@ -103,12 +103,6 @@ export default defineComponent({
             }
             return result + currentValue
         }
-
-        /* 
-            TODO: parse minutes, seconds i td
-            TODO: sync time after stopping
-            TODO: сделать заполнение времени в отображении нулями (до длины value)
-        */
         
         return {
             sync_time, 

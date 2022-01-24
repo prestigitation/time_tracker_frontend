@@ -83,8 +83,6 @@ export default defineComponent({
             
         }
 
-        //TODO: проверка суммарного task time, сверка с временем задачи(должно быть меньше)
-
         return {
             openNewSubtask,
             changeSubtaskValue,

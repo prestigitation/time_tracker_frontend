@@ -10,7 +10,6 @@
 </template>
 
 <script lang="ts">
-//TODO: запись видео (опционально аудио)
 import './assets/index.scss'
 
 import  AppHeader from './components/AppHeader.vue'

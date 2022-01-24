@@ -25,10 +25,21 @@
             },
             "stop": {
                 "title": "Stop recording"
+            },
+            "send": {
+                "title": "Video upload",
+                "button_sign": "Send the video",
+                "success": {
+                    "message": "Video file was uploaded successfully!"
+                },
+                "fail": {
+                    "message": "Can`t upload a file."
+                }
             }
         },
         "preview": {
-            "title": "Video preview(click here)"
+            "title": "Video preview(click here)",
+            "header": "Video Preview"
         },
         "file": {
             "title": "Files"

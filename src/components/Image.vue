@@ -19,12 +19,13 @@ export default defineComponent({
 </script>
 <style lang="scss" scoped>
 .image {
-    padding: 10px;
-    max-width: 150px;
-    max-height: 100px;
     &__wrapper {
         display: flex;
         flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100px;
+        width: 100px;
     }
 }
 </style>
