@@ -116,7 +116,7 @@
                     <div class="task__files_title">{{$t('tasks.file.title')}}</div>
                     <div class="task__files_container">
                         <div v-for="file in getFilesLinks(currentTask.files)">
-                            <Image v-if="getFileType(file) === 'image'" :src="file" />
+                            <Image v-if="getFileType(file) === 'image'" :src="file" @click.prevent="getImagePreview(file)" />
                             <span v-else-if="getFileType(file) === 'video'">
                                 <video 
                                     :src="file" 
@@ -140,28 +140,30 @@
     </keep-alive>
     <template #footer>
         <span class="video__recorder">
-            <span @click.prevent="recordVideo" v-if="!isRecording">
+            <span @click.prevent="recordVideo" v-if="!isRecording" class="video__recorder-button">
                 <video-play width="20" height="20" color="green"/>
                 <span>
                     {{$t('tasks.video.record.title')}}
                 </span>
             </span>
-            <span @click.prevent="stopVideo" v-else>
+            <span @click.prevent="stopVideo" v-else class="video__recorder-button">
                 <video-pause width="20" height="20" color="red"/>
                 <span>
                     {{$t('tasks.video.stop.title')}}
                 </span>
             </span>
         </span>
-        <el-button type="primary" @click.prevent="editTask">
-            {{ $t('tasks.update.title') }}
-        </el-button>
         <el-button type="danger" @click.prevent="deleteModalOpened = true">
             {{ $t('tasks.delete.title') }}
         </el-button>
     </template>
 </el-dialog>
 <el-dialog v-model="videoPreviewModalOpened">
+    <template #title>
+        <span>
+            {{$t('tasks.preview.header')}}
+        </span>
+    </template>
     <video 
         id="preview"
         ref="preview" 
@@ -174,6 +176,14 @@
             {{$t('tasks.video.send.button_sign')}}
         </el-button>
     </template>
+</el-dialog>
+<el-dialog v-model="imagePreviewModalOpened" width="95%">
+    <template #title>
+        <span>
+            {{$t('tasks.preview.header')}}
+        </span>
+    </template>
+    <img ref="image" :src="imageLink">
 </el-dialog>
 </template>
 
@@ -214,7 +224,8 @@ export default defineComponent({
         let chunks: any[] = []
         let blob
         let url
-        let link
+        let videoLink
+        let imageLink
         
         const tasks = ref<any[]>([])
         const loading = ref(true)
@@ -224,9 +235,12 @@ export default defineComponent({
         
         const deleteModalOpened = ref(false)
         const taskModalOpened = ref(false)
-        const isRecording = ref(false)
         const videoPreviewModalOpened = ref(false)
+        const imagePreviewModalOpened = ref(false)
+        const isRecording = ref(false)
+        
         const preview = ref(null)
+        const image = ref(null)
         
         
         
@@ -242,10 +256,6 @@ export default defineComponent({
 
         const handleTableMouseEnter = (task: any) => {
             currentRowId.value = task.id
-        }
-
-        const editTask = () => {
-            router.push(`/task/${currentRowId.value}`)
         }
 
 
@@ -323,8 +333,8 @@ export default defineComponent({
         }
 
         const showVideoPreview = (data: any[] = chunks) => {
-            if(link) {
-                url = link
+            if(videoLink) {
+                url = videoLink
             } else {
                 blob = new Blob(data, { 'type' : 'video/mp4' });
                 url = URL.createObjectURL(blob)
@@ -356,8 +366,18 @@ export default defineComponent({
         }
 
         const getPreview = (event: any) => {
-            link = event.target.src
+            videoLink = event.target.src
             videoPreviewModalOpened.value = true
+        }
+
+        const getImagePreview = (fileLink: string = '') => {
+            imageLink = fileLink
+            imagePreviewModalOpened.value = true
+        }
+
+        const showImagePreview = () => {
+            // @ts-ignore
+            image.value.src = imageLink
         }
 
         const currentTasks = computed(() => tasks.value.slice((currentPage.value - 1) * perPage, (currentPage.value * perPage) - 1))
@@ -378,6 +398,8 @@ export default defineComponent({
             () => { 
                 if(videoPreviewModalOpened.value) {
                     showVideoPreview()
+                } else if (imagePreviewModalOpened.value) {
+                    showImagePreview()
                 }
             }, 
             {
@@ -392,8 +414,8 @@ export default defineComponent({
             })
         })
 
-        return {
-            router, 
+        return { 
+            router,
             tasks, 
             loading, 
             taskModalOpened,
@@ -405,18 +427,22 @@ export default defineComponent({
             videoPreviewModalOpened,
             preview,
             sourcePreviewOpened,
+            imagePreviewModalOpened,
+            imageLink,
+            image,
 
             stopVideo,
             recordVideo,
             getPreview,
+            getImagePreview,
             sendVideo,
             handleTableMouseEnter, 
             deleteTask,
-            editTask, 
             syncTime, 
             getFilesLinks,
             getFileType,
             changePage, 
+            showImagePreview
         }
     },
 })
@@ -484,7 +510,12 @@ export default defineComponent({
     }
 }
 .video__recorder {
-    margin-left: 10px;
-    margin-right: 10px;
+    margin: 0 10px 0 10px;
+    &:hover {
+        cursor: pointer;
+    }
+    &-button {
+        margin: 0 10px 0 10px;
+    }
 }
 </style>
