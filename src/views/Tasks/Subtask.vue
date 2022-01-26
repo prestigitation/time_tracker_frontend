@@ -26,6 +26,10 @@
                     value: $event,
                     index
                 })"
+                @update:subtask_selected_tags="changeSubtaskValue('priority', {
+                    value: $event,
+                    index
+                })"
             />
         </div>
         <div class="subtask__closed">
@@ -54,7 +58,9 @@ export default defineComponent({
         'update:hours',
         'update:subtask_hours',
         'update:priority',
-        'update:subtask_priority'
+        'update:subtask_priority',
+        'update:selected_tags',
+        'update:subtask_selected_tags'
     ],
     props: {
         subtasks: {

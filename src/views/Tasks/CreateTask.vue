@@ -7,12 +7,14 @@
         @update:files="changeTaskValue($event,'files')"
         @update:hours="changeTaskValue($event,'hours')"
         @update:priority="changeTaskValue($event,'priority')"
+        @update:selected_tags="changeTaskValue($event,'selected_tags')"
         
         @update:subtask_description="changeSubtaskValue"
         @update:subtask_title="changeSubtaskValue"
         @update:subtask_hours="changeSubtaskValue"
         @update:subtask_ended_at="changeSubtaskDueDate"
         @update:subtask_priority="changeSubtaskValue"
+        @update:subtask_selected_tags="changeSubtaskValue"
         
         
         :subtasks="subtasks"
@@ -47,7 +49,8 @@ export default defineComponent({
             ended_at: '',
             files: [],
             hours: '',
-            priority: ''
+            priority: '',
+            selected_tags: []
         })
         
         const openSubtask = () => {
@@ -57,7 +60,8 @@ export default defineComponent({
                 ended_at: '',
                 files: [],
                 hours: '',
-                priority: ''
+                priority: '',
+                selected_tags: []
             });
         }
         const addTask = async () => {
@@ -124,7 +128,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style>
-
-</style>

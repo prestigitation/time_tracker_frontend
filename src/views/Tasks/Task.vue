@@ -8,12 +8,25 @@
             <el-form-item  :label="$t('tasks.priority.title')" />  
             <el-select @change="matchData('priority', $event)" v-model="priority">
                 <el-option
-                    v-for="priority: any in priorities"
+                    v-for="priority:  any in priorities"
                     :key="priority.id"
                     :label="priority.title"
                     :value="priority.id"
                 />
             </el-select>
+            <el-form-item :label="$t('tasks.tags.title')" />
+            <!-- TODO: text color-->
+            <el-tag
+                class="tag" 
+                v-for="tag: any in tags" 
+                :key="tag.id" 
+                :color="tag.color"
+                @click.prevent="addTag(tag)"
+            > 
+                {{tag.title}}
+            </el-tag>
+            <hr>
+            <Tag :tags="selectedTags" />
             <el-form-item  :label="$t('tasks.description', {type: subtask ? $t('tasks.subtasks.name') : $t('tasks.name')})" /> 
             <el-input type="textarea" v-model="description" @input="matchData('description', $event)" />
             <el-form-item  :label="$t('tasks.hours.title')" /> 
@@ -40,7 +53,8 @@
                 @update:subtask_title="changeSubtaskField('title', $event)"
                 @update:subtask_ended_at="changeSubtaskField('ended_at', $event)"
                 @update:subtask_hours="changeSubtaskField('hours', $event)"
-                @update:subtask_priority="changeSubtaskField('priority', $event)"  
+                @update:subtask_priority="changeSubtaskField('priority', $event)"
+                @update:subtask_selected_tags="changeSubtaskField('selected_tags', $event)"    
             />
         </el-form>
     </el-col>
@@ -50,25 +64,27 @@
 <script lang="ts">
 import { ISubtaskEmit } from '@/types/task';
 import { AxiosResponse } from 'axios';
-import { defineComponent, ref, onMounted, inject } from 'vue'
+import { defineComponent, ref, onMounted, inject, watch, watchPostEffect, watchEffect } from 'vue'
 import useShortcuts  from '../../hooks/useShortcuts'
+import Tag from '@/components/Tag.vue';
 export default defineComponent({
-    name: 'task',
-    emits: [ 
-        'update:description' ,
-        'update:subtask_description',
-        'update:title',
-        'update:subtask_title',
-        'update:ended_at',
-        'update:subtask_ended_at',
-        'update:files',
-        'update:subtask_files',
-        'update:hours',
-        'update:subtask_hours',
-        'update:priority',
-        'update:subtask_priority',
-
-        'openNewSubtask'
+    name: "task",
+    emits: [
+        "update:description",
+        "update:subtask_description",
+        "update:title",
+        "update:subtask_title",
+        "update:ended_at",
+        "update:subtask_ended_at",
+        "update:files",
+        "update:subtask_files",
+        "update:hours",
+        "update:subtask_hours",
+        "update:priority",
+        "update:subtask_priority",
+        "update:selected_tags",
+        "update:subtask_selected_tags",
+        "openNewSubtask"
     ],
     props: {
         subtask: {
@@ -84,62 +100,71 @@ export default defineComponent({
             default: false
         }
     },
-    setup(props, {emit}) {
-        const axios: any = inject('axios')
-
-        const title = ref<string>('')
-        const priorities = ref([])
-        const priority = ref('')
-        const ended_at = ref('')
-        const description = ref<string>('')
-        const hours = ref(0)
-        const files = ref<File[]>([])
-        const { shortcuts } = useShortcuts()
-
-        onMounted(async() => {
-            await getPriorities()
-        })
-
-
+    setup(props, { emit }) {
+        const axios: any = inject("axios");
+        const title = ref<string>("");
+        const priorities = ref([]);
+        const tags = ref([]);
+        const selectedTags = ref([]);
+        const priority = ref("");
+        const ended_at = ref("");
+        const description = ref<string>("");
+        const hours = ref(0);
+        const files = ref<File[]>([]);
+        const { shortcuts } = useShortcuts();
+        onMounted(async () => {
+            await getPriorities();
+            await getTags();
+        });
         const getPriorities = async () => {
-            const allTasks = await axios.get('priority').then((response: AxiosResponse) => {
-                return response.data
-            })
-            priorities.value = allTasks
-        }
-        const addTask = () => {}
+            const allTasks = await axios.get("priority").then((response: AxiosResponse) => response.data);
+            priorities.value = allTasks;
+        };
+        const getTags = async () => {
+            const allTags = await axios.get("tag").then((response: AxiosResponse) => response.data);
+            tags.value = allTags;
+        };
+        const addTask = () => { };
         const setFiles = (event: any) => {
-            emit('update:files', event.target.files)
-        }
+            emit("update:files", event.target.files);
+        };
         const matchData = (property: string, event: any) => {
-            if(props.subtask) {
-                prepareSubtask(property, event)
-            } else changeField(property, event)
-        }   
+            if (props.subtask) {
+                prepareSubtask(property, event);
+            }
+            else
+                changeField(property, event);
+        };
         const changeField = (updatingField: string, value: string) => {
-                let defaultEmit: any = `update:${updatingField}`
-                // Если задача является подзадачей, отправляем ее для установления нужного индекса 
-                // в компонент subtask
-                // и последующего изменения в родительском компоненте
-                // Если мы работаем с обычной формой, отправляем это напрямую родителю (createTask.vue)
-                emit(defaultEmit, value)
-        }
+            let defaultEmit: any = `update:${updatingField}`;
+            // Если задача является подзадачей, отправляем ее для установления нужного индекса 
+            // в компонент subtask
+            // и последующего изменения в родительском компоненте
+            // Если мы работаем с обычной формой, отправляем это напрямую родителю (createTask.vue)
+            emit(defaultEmit, value);
+        };
         const prepareSubtask = (updatingField: string, value: string) => {
-            let emitString: any = `update:subtask_${updatingField}`
-            emit(emitString, value)
-        }
-
+            let emitString: any = `update:subtask_${updatingField}`;
+            emit(emitString, value);
+        };
+        const addTag = (tag: never) => {
+            if (!selectedTags.value.includes(tag))
+                selectedTags.value.push(tag);
+        };
         const changeSubtaskField = (updatingField: string, structure: ISubtaskEmit) => {
-            let subtaskEmit: any = `update:subtask_${updatingField}`
+            let subtaskEmit: any = `update:subtask_${updatingField}`;
             emit(subtaskEmit, {
                 updatingField,
                 index: structure.index,
                 value: structure.value
-            })
-        }
+            });
+        };
         const openNewSubtask = () => {
-            emit('openNewSubtask')
-        }
+            emit("openNewSubtask");
+        };
+        watchEffect(() => {
+            matchData("selected_tags", selectedTags.value);
+        });
         return {
             title,
             priorities,
@@ -149,14 +174,18 @@ export default defineComponent({
             files,
             shortcuts,
             hours,
+            tags,
+            selectedTags,
             addTask,
             changeField,
             changeSubtaskField,
             openNewSubtask,
             setFiles,
             matchData,
-        }
+            addTag,
+        };
     },
+    components: { Tag }
 })
 </script>
 

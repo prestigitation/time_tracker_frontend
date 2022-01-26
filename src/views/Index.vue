@@ -64,7 +64,7 @@
             width="180"
             >
                 <template #default="scope">
-                    <div v-if="scope.row.tags">
+                    <div v-if="scope.row.tags?.length">
                         <Attachment
                             v-for="tag in scope.row.tags" 
                             :key="tag.id"
@@ -106,7 +106,7 @@
                 <span v-if="currentTask.hours">
                     {{ $t('tasks.hours.dialog_title') }} {{ currentTask.hours }} {{ $t('tasks.hours.measure') }}
                 </span>
-                <span>tags</span> <!-- TODO: tags-->
+                <Tag :tags="currentTask.tags" />
             </div>
             <div class="task__description" v-if="currentTask.description">
                 <span v-text="currentTask.description" />
@@ -203,6 +203,7 @@ import { ElNotification } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import Image from '../components/Image.vue'
 import Pagination from '@/components/Pagination.vue'
+import Tag from '@/components/Tag.vue'
 export default defineComponent({
     components: {
     Edit,
@@ -212,7 +213,8 @@ export default defineComponent({
     Image,
     Pagination,
     VideoPause,
-    VideoPlay
+    VideoPlay,
+    Tag,
 },
     name: 'index',
     setup() {

@@ -5,6 +5,7 @@ interface ITask {
     files: FileList | [],
     hours: string,
     priority: string,
+    selected_tags: []
 }
 interface ISubtask extends ITask {}
 
