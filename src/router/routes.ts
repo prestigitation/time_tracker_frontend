@@ -2,6 +2,7 @@ import Index from '../views/Index.vue'
 import Login from '../views/Auth/Login.vue'
 import Register from '../views/Auth/Register.vue'
 import CreateTask from '../views/Tasks/CreateTask.vue'
+import CreateTag from '../views/Tags/CreateTag.vue'
 import {RouteRecordRaw} from 'vue-router'
 const routes:Array<RouteRecordRaw> = [
     {
@@ -23,6 +24,11 @@ const routes:Array<RouteRecordRaw> = [
         path: '/task',
         name: 'CreateTask',
         component: CreateTask
+    },
+    {
+        path: '/tag',
+        name: 'CreateTag',
+        component: CreateTag
     }
 ]
 

@@ -4,6 +4,7 @@
     v-for="tag: any in tags" 
     :key="tag.id" 
     :color="tag.color"
+    effect="dark"
     > 
     {{tag.title}}
 </el-tag>

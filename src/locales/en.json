@@ -51,7 +51,21 @@
         },
         "tags": {
             "title": "Tags",
-            "add": "Add new tag"
+            "add": "Add new tag",
+            "bg_color": {
+                "title": "Choose background color"
+            },
+            "final_tag": {
+                "title": "Your tag view"
+            },
+            "text": {
+                "title": "Tag text"
+            },
+            "create": {
+                "title": "Create tag",
+                "success": "The tag was succesfully created!",
+                "fail": "The tag wasn`t created :("
+            }
         },
         "spent_time": {
             "title": "Total spent time"

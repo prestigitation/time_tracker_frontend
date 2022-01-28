@@ -15,13 +15,13 @@
                 />
             </el-select>
             <el-form-item :label="$t('tasks.tags.title')" />
-            <!-- TODO: text color-->
             <el-tag
                 class="tag" 
                 v-for="tag: any in tags" 
                 :key="tag.id" 
                 :color="tag.color"
                 @click.prevent="addTag(tag)"
+                effect="dark"
             > 
                 {{tag.title}}
             </el-tag>
@@ -204,10 +204,10 @@ export default defineComponent({
     }
 }
 .task_form {
-        & .el-form-item {
-            margin-bottom: 5px !important;
-            font-weight: bold;
-            font-size: 2.5em;
-        }
+    & .el-form-item {
+        margin-bottom: 5px !important;
+        font-weight: bold;
+        font-size: 2.5em;
+    }
 }
 </style>

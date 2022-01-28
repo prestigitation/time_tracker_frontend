@@ -74,6 +74,7 @@
                     </div>
                     <div v-else>
                         <Attachment
+                            @click.prevent="navigateToTagCreate"
                             :add_new="true"
                             :title="$t('tasks.tags.add')"
                             color="green"
@@ -382,6 +383,10 @@ export default defineComponent({
             image.value.src = imageLink
         }
 
+        const navigateToTagCreate = () => {
+            router.push('/tag')
+        }
+
         const currentTasks = computed(() => tasks.value.slice((currentPage.value - 1) * perPage, (currentPage.value * perPage) - 1))
         // source preview - означает, что видео было открыто не из блоба(сгенерировано рекордером), 
         // а по ссылке с бэкэнда, где он хранится
@@ -444,7 +449,8 @@ export default defineComponent({
             getFilesLinks,
             getFileType,
             changePage, 
-            showImagePreview
+            showImagePreview,
+            navigateToTagCreate
         }
     },
 })
@@ -518,6 +524,13 @@ export default defineComponent({
     }
     &-button {
         margin: 0 10px 0 10px;
+    }
+}
+
+#preview {
+    @media (max-width: 768px) {
+        width: 90% !important;
+        height: 100px !important;
     }
 }
 </style>
